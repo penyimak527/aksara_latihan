@@ -231,6 +231,10 @@
 								<div class="value span_nis"></div>
 							</div>
 							<div class="col-12 col-md-6 kv">
+								<label>Password</label>
+								<div class="value span_password_siswa"></div>
+							</div>
+							<div class="col-12 col-md-6 kv">
 								<label>Jenjang</label>
 								<div class="value span_jenjang"></div>
 							</div>
@@ -428,6 +432,7 @@
 
 		$('.span_nama_siswa').html(item.nama_siswa)
 		$('.span_nis').html(item.nis)
+		$('.span_password_siswa').html(item.password_siswa_text)
 		$('.span_jenjang').html(item.nama_jenjang)
 		$('.span_kelas').html(item.nama_kelas)
 		$('.span_sekolah_asal').html(item.asal_sekolah)
