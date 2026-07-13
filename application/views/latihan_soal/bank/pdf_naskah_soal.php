@@ -6,7 +6,24 @@ function h_naskah($text)
 {
     return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
 }
+function potong_teks_naskah($text, $limit = 42)
+{
+    $text = trim((string) $text);
 
+    if ($text === '') {
+        return '-';
+    }
+
+    if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+        return (mb_strlen($text, 'UTF-8') > $limit)
+            ? mb_substr($text, 0, $limit, 'UTF-8') . '...'
+            : $text;
+    }
+
+    return (strlen($text) > $limit)
+        ? substr($text, 0, $limit) . '...'
+        : $text;
+}
 function nomor_label_naskah($index)
 {
     $index = (int) $index;
@@ -24,21 +41,33 @@ function estimasi_tinggi_soal($row)
 {
     /*
      * Estimasi ini dipakai hanya untuk membagi soal ke halaman dan kolom.
-     * Angkanya dibuat tidak terlalu besar supaya ruang kosong PDF bisa terisi.
+     * Nilai dibuat per blok soal supaya satu soal tidak dipotong. Dompdf
+     * tidak bisa memberi tinggi asli sebelum render, jadi estimasi dibuat
+     * lebih aman untuk lebar kolom PDF.
      */
     $nilai = 2;
+    $tipe = $row['tipe_soal'] ?? '';
 
-    $pertanyaan = strip_tags((string) ($row['pertanyaan'] ?? ''));
-    $nilai += max(1, ceil(strlen($pertanyaan) / 80));
+    $pertanyaan = trim(strip_tags((string) ($row['pertanyaan'] ?? '')));
+    $nilai += max(1, ceil(strlen($pertanyaan) / 48));
 
     $jawaban = isset($row['jawaban']) && is_array($row['jawaban']) ? $row['jawaban'] : [];
     foreach ($jawaban as $jawab) {
-        $teks = strip_tags((string) ($jawab['isi_jawaban'] ?? ''));
-        $nilai += max(1, ceil(strlen($teks) / 90));
+        $teks = trim(strip_tags((string) ($jawab['isi_jawaban'] ?? '')));
+
+        if ($tipe === 'benar_salah') {
+            /*
+             * Benar/salah biasanya tampil minimal 2 baris:
+             * 1 baris pernyataan + 1 baris pilihan Benar/Salah.
+             */
+            $nilai += 2 + max(0, ceil(strlen($teks) / 55) - 1);
+        } else {
+            $nilai += max(1, ceil(strlen($teks) / 55));
+        }
     }
 
     if (!empty($row['gambar_soal'])) {
-        $nilai += 10;
+        $nilai += 8;
     }
 
     return $nilai;
@@ -52,44 +81,57 @@ function bagi_soal_dua_kolom($soal)
     $page_index = 0;
 
     while ($index < $total_soal) {
-        $items_halaman = [];
-        $total_estimasi = 0;
+        /*
+         * Kapasitas dihitung untuk setiap kolom, bukan untuk satu halaman.
+         * Halaman pertama lebih kecil karena terdapat KOP dan identitas.
+         * Nilai ini mempertahankan total kapasitas lama:
+         * halaman pertama 39 + 39, halaman lanjutan 52 + 52.
+         */
+        $batas_kolom = ($page_index == 0) ? 43 : 56;
+
+        $kiri = [];
+        $kanan = [];
 
         /*
-         * Kapasitas halaman.
-         * Halaman pertama lebih kecil karena ada KOP dan identitas.
-         * Halaman berikutnya lebih besar karena tidak ada KOP.
+         * Urutan pengisian:
+         * 1. Isi kolom kiri sampai tidak cukup untuk soal berikutnya.
+         * 2. Lanjutkan soal berikutnya ke kolom kanan.
+         * 3. Jika kolom kanan penuh, lanjutkan ke halaman berikutnya.
          */
-        $batas_halaman = ($page_index == 0) ? 78 : 105;
+        foreach (['kiri', 'kanan'] as $nama_kolom) {
+            $total_estimasi_kolom = 0;
 
-        while ($index < $total_soal) {
-            $row = $soal[$index];
-            $tinggi = estimasi_tinggi_soal($row);
+            while ($index < $total_soal) {
+                $row = $soal[$index];
+                $tinggi = max(1, estimasi_tinggi_soal($row));
 
-            if (!empty($items_halaman) && ($total_estimasi + $tinggi) > $batas_halaman) {
-                break;
+                /*
+                 * Jangan memotong satu soal. Jika sisa kolom tidak cukup,
+                 * soal utuh dipindahkan ke kolom atau halaman berikutnya.
+                 */
+                if ($total_estimasi_kolom > 0 &&
+                    ($total_estimasi_kolom + $tinggi) > $batas_kolom) {
+                    break;
+                }
+
+                /*
+                 * Jika satu soal lebih tinggi daripada kapasitas kolom,
+                 * tetap tempatkan soal tersebut sendirian agar proses tidak
+                 * berhenti berulang pada soal yang sama.
+                 */
+                if ($nama_kolom === 'kiri') {
+                    $kiri[] = $row;
+                } else {
+                    $kanan[] = $row;
+                }
+
+                $total_estimasi_kolom += $tinggi;
+                $index++;
+
+                if ($total_estimasi_kolom >= $batas_kolom) {
+                    break;
+                }
             }
-
-            $items_halaman[] = $row;
-            $total_estimasi += $tinggi;
-            $index++;
-        }
-
-        /*
-         * Pembagian kolom dibuat seimbang.
-         * Tidak isi kiri sampai penuh, karena itu bisa membuat semua soal berada di kiri.
-         */
-        $jumlah_item = count($items_halaman);
-        $jumlah_kiri = (int) ceil($jumlah_item / 2);
-
-        $kiri = array_slice($items_halaman, 0, $jumlah_kiri);
-        $kanan = array_slice($items_halaman, $jumlah_kiri);
-
-        /*
-         * Jika kanan kosong tapi item lebih dari 1, paksa sebagian pindah kanan.
-         */
-        if ($jumlah_item > 1 && empty($kanan)) {
-            $kanan[] = array_pop($kiri);
         }
 
         $halaman[] = [
@@ -220,46 +262,57 @@ function render_soal_pdf_naskah($row, $index)
         }
 
         .soal-columns {
-            display: table;
+            position: relative;
             width: 100%;
-            table-layout: fixed;
+            height: 198mm;
+            clear: both;
+        }
+
+        .page-lanjutan .soal-columns {
+            height: 260mm;
         }
 
         .soal-col {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
+            position: absolute;
+            top: 0;
+            width: 47.8%;
+            padding: 0;
+            overflow: visible;
         }
 
         .soal-col.left {
-            padding-right: 14px;
+            left: 0;
         }
 
         .soal-col.right {
-            padding-left: 14px;
+            left: 52.2%;
         }
 
         .soal-item {
             page-break-inside: avoid;
             margin-bottom: 13px;
+            position: relative;
+            padding-left: 24px;
         }
 
         .soal-row {
-            display: table;
+            display: block;
             width: 100%;
         }
 
         .soal-number {
-            display: table-cell;
-            width: 28px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 22px;
             font-weight: bold;
-            vertical-align: top;
             font-size: 13px;
+            line-height: 1.5;
         }
 
         .soal-content {
-            display: table-cell;
-            vertical-align: top;
+            display: block;
+            width: 100%;
             font-size: 13px;
         }
 
@@ -267,11 +320,12 @@ function render_soal_pdf_naskah($row, $index)
             font-size: 13px;
             line-height: 1.5;
             margin-bottom: 7px;
+            word-wrap: break-word;
         }
 
         .gambar-soal {
-            max-width: 100%;
-            max-height: 220px;
+            max-width: 85px;
+            max-height: 85px;
             display: block;
             margin: 8px 0;
             border: 1px solid #ddd;
@@ -284,22 +338,25 @@ function render_soal_pdf_naskah($row, $index)
         }
 
         .opsi-row {
-            display: table;
-            width: 100%;
+            position: relative;
+            padding-left: 24px;
             margin-bottom: 5px;
             line-height: 1.45;
+            page-break-inside: avoid;
         }
 
         .opsi-label {
-            display: table-cell;
-            width: 24px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
             font-weight: bold;
-            vertical-align: top;
         }
 
         .opsi-text {
-            display: table-cell;
-            vertical-align: top;
+            display: block;
+            width: 100%;
+            word-wrap: break-word;
         }
 
         .bs-row {
@@ -309,6 +366,7 @@ function render_soal_pdf_naskah($row, $index)
 
         .bs-question {
             margin-bottom: 3px;
+            word-wrap: break-word;
         }
 
         .bs-option {
@@ -365,7 +423,8 @@ function render_soal_pdf_naskah($row, $index)
                         <tr>
                             <td style="width: 120px;">Nama Naskah</td>
                             <td style="width: 8px;">:</td>
-                            <td><?= h_naskah($naskah['nama_naskah_soal'] ?? '-'); ?></td>
+                            <!-- <td style="width: ;"><?= h_naskah($naskah['nama_naskah_soal'] ?? '-'); ?></td> -->
+                            <td style="width: 260px; max-width: 260px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.35;"><?= h_naskah($naskah['nama_naskah_soal'] ?? '-'); ?></td>
                             <td style="width: 100px;">Jumlah Soal</td>
                             <td style="width: 8px;">:</td>
                             <td><?= (int) ($naskah['jumlah_soal'] ?? 0); ?> soal</td>
