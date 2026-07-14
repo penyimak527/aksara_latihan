@@ -266,24 +266,24 @@ class M_detail_siswa extends CI_Model
         return $row;
     }
 
-   private function analisa_materi($id_pengerjaan)
-{
-    if ($id_pengerjaan <= 0) {
-        return ['kekuatan' => [], 'kelemahan' => [], 'semua' => []];
-    }
+    private function analisa_materi($id_pengerjaan)
+    {
+        if ($id_pengerjaan <= 0) {
+            return ['kekuatan' => [], 'kelemahan' => [], 'semua' => []];
+        }
 
-    $pengerjaan = $this->db->select('jenis_pengerjaan')->get_where('siswa_pengerjaan', ['id' => $id_pengerjaan])->row_array();
+        $pengerjaan = $this->db->select('jenis_pengerjaan')->get_where('siswa_pengerjaan', ['id' => $id_pengerjaan])->row_array();
 
-    if (!$pengerjaan) {
-        return ['kekuatan' => [], 'kelemahan' => [], 'semua' => []];
-    }
+        if (!$pengerjaan) {
+            return ['kekuatan' => [], 'kelemahan' => [], 'semua' => []];
+        }
 
-    $tabel_jawaban = $pengerjaan['jenis_pengerjaan'] === 'Rumah' ? 'siswa_jawaban_rumah' : 'siswa_jawaban_bimbel';
+        $tabel_jawaban = $pengerjaan['jenis_pengerjaan'] === 'Rumah' ? 'siswa_jawaban_rumah' : 'siswa_jawaban_bimbel';
 
-    $this->db->select('m.id, m.nama_materi');
-    $this->db->select('COUNT(j.id) AS total_soal', false);
-    $this->db->select("SUM(CASE WHEN j.status_jawaban = 'Benar' THEN 1 ELSE 0 END) AS jumlah_benar", false);
-    $this->db->select("
+        $this->db->select('m.id, m.nama_materi');
+        $this->db->select('COUNT(j.id) AS total_soal', false);
+        $this->db->select("SUM(CASE WHEN j.status_jawaban = 'Benar' THEN 1 ELSE 0 END) AS jumlah_benar", false);
+        $this->db->select("
         AVG(
             CASE 
                 WHEN CAST(s.bobot_nilai AS DECIMAL(10,2)) > 0 
@@ -293,74 +293,74 @@ class M_detail_siswa extends CI_Model
             END
         ) AS persen
     ", false);
-    $this->db->from($tabel_jawaban . ' j');
-    $this->db->join('soal s', 'j.id_soal = s.id', 'inner');
-    $this->db->join('materi m', 's.id_materi = m.id', 'inner');
-    $this->db->where('j.id_pengerjaan', $id_pengerjaan);
+        $this->db->from($tabel_jawaban . ' j');
+        $this->db->join('soal s', 'j.id_soal = s.id', 'inner');
+        $this->db->join('materi m', 's.id_materi = m.id', 'inner');
+        $this->db->where('j.id_pengerjaan', $id_pengerjaan);
 
-    $rows = $this->db->group_by('m.id')->order_by('persen', 'DESC')->get()->result_array();
+        $rows = $this->db->group_by('m.id')->order_by('persen', 'DESC')->get()->result_array();
 
-    $semua = [];
-    $kekuatan = [];
-    $kelemahan = [];
-    foreach ($rows as $row) {
-        $item = [
-            'nama_materi' => $row['nama_materi'],
-            'jumlah_benar' => (int) $row['jumlah_benar'],
-            'total_soal' => (int) $row['total_soal'],
-            'persen' => (float) $row['persen'],
-            'persen_format' => $this->nilai_format($row['persen'])
+        $semua = [];
+        $kekuatan = [];
+        $kelemahan = [];
+        foreach ($rows as $row) {
+            $item = [
+                'nama_materi' => $row['nama_materi'],
+                'jumlah_benar' => (int) $row['jumlah_benar'],
+                'total_soal' => (int) $row['total_soal'],
+                'persen' => (float) $row['persen'],
+                'persen_format' => $this->nilai_format($row['persen'])
+            ];
+
+            $semua[] = $item;
+            if ((float) $row['persen'] >= 80) {
+                $kekuatan[] = $item;
+            }
+
+            if ((float) $row['persen'] < 70) {
+                $kelemahan[] = $item;
+            }
+        }
+
+        return [
+            'kekuatan' => $kekuatan,
+            'kelemahan' => $kelemahan,
+            'semua' => $semua
         ];
+    }
 
-        $semua[] = $item;
-        if ((float) $row['persen'] >= 80) {
-            $kekuatan[] = $item;
+    private function preview_jawaban($id_pengerjaan)
+    {
+        if ($id_pengerjaan <= 0) {
+            return [];
         }
 
-        if ((float) $row['persen'] < 70) {
-            $kelemahan[] = $item;
+        $pengerjaan = $this->db
+            ->select('jenis_pengerjaan')
+            ->get_where('siswa_pengerjaan', ['id' => $id_pengerjaan])
+            ->row_array();
+
+        if (!$pengerjaan) {
+            return [];
         }
+
+        $tabel_jawaban = $pengerjaan['jenis_pengerjaan'] === 'Rumah' ? 'siswa_jawaban_rumah' : 'siswa_jawaban_bimbel';
+        $this->db->select('j.*, s.nomor_soal, s.pertanyaan, s.gambar_soal, s.pembahasan, m.nama_materi');
+        $this->db->from($tabel_jawaban . ' j');
+        $this->db->join('soal s', 'j.id_soal = s.id', 'inner');
+        $this->db->join('materi m', 's.id_materi = m.id', 'left');
+        $this->db->where('j.id_pengerjaan', $id_pengerjaan);
+
+        $rows = $this->db->order_by('CAST(s.nomor_soal AS UNSIGNED)', 'ASC', false)->order_by('s.id', 'ASC')->get()->result_array();
+
+        foreach ($rows as $key => $row) {
+            $rows[$key]['jawaban_siswa_text'] = $this->decode_answer($row['jawaban_siswa']);
+            $rows[$key]['jawaban_benar_text'] = $this->decode_answer($row['jawaban_benar']);
+            $rows[$key]['nilai_format'] = rtrim(rtrim(number_format((float) ($row['nilai'] ?? 0), 2, '.', ''), '0'), '.');
+        }
+
+        return $rows;
     }
-
-    return [
-        'kekuatan' => $kekuatan,
-        'kelemahan' => $kelemahan,
-        'semua' => $semua
-    ];
-}
-
-   private function preview_jawaban($id_pengerjaan)
-{
-    if ($id_pengerjaan <= 0) {
-        return [];
-    }
-
-    $pengerjaan = $this->db
-        ->select('jenis_pengerjaan')
-        ->get_where('siswa_pengerjaan', ['id' => $id_pengerjaan])
-        ->row_array();
-
-    if (!$pengerjaan) {
-        return [];
-    }
-
-    $tabel_jawaban = $pengerjaan['jenis_pengerjaan'] === 'Rumah' ? 'siswa_jawaban_rumah' : 'siswa_jawaban_bimbel';
-    $this->db->select('j.*, s.nomor_soal, s.pertanyaan, s.gambar_soal, s.pembahasan, m.nama_materi');
-    $this->db->from($tabel_jawaban . ' j');
-    $this->db->join('soal s', 'j.id_soal = s.id', 'inner');
-    $this->db->join('materi m', 's.id_materi = m.id', 'left');
-    $this->db->where('j.id_pengerjaan', $id_pengerjaan);
-
-    $rows = $this->db->order_by('CAST(s.nomor_soal AS UNSIGNED)', 'ASC', false)->order_by('s.id', 'ASC')->get()->result_array();
-
-    foreach ($rows as $key => $row) {
-        $rows[$key]['jawaban_siswa_text'] = $this->decode_answer($row['jawaban_siswa']);
-        $rows[$key]['jawaban_benar_text'] = $this->decode_answer($row['jawaban_benar']);
-        $rows[$key]['nilai_format'] = rtrim(rtrim(number_format((float) ($row['nilai'] ?? 0), 2, '.', ''), '0'), '.');
-    }
-
-    return $rows;
-}
 
     public function detail_result()
     {

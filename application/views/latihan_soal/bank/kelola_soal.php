@@ -52,9 +52,26 @@
 
     .detail-pembahasan {
         white-space: normal;
+        line-height: 1.4;
     }
 
-    .detail-pembahasan > :last-child {
+    .detail-pembahasan p {
+        margin-top: 0;
+        margin-bottom: 4px;
+    }
+
+    .detail-pembahasan ol,
+    .detail-pembahasan ul {
+        margin-top: 0;
+        margin-bottom: 6px;
+        padding-left: 20px;
+    }
+
+    .detail-pembahasan li {
+        margin-bottom: 2px;
+    }
+
+    .detail-pembahasan> :last-child {
         margin-bottom: 0;
     }
 </style>
@@ -81,7 +98,8 @@
             <div class="col-md-3"><strong>Mata
                     Pelajaran</strong><br><?= htmlspecialchars($naskah['nama_mata_pelajaran'] ?? '-'); ?></div>
             <div class="col-md-3">
-                <strong>Kategori</strong><br><?= htmlspecialchars($naskah['nama_kategori_soal'] ?? '-'); ?></div>
+                <strong>Kategori</strong><br><?= htmlspecialchars($naskah['nama_kategori_soal'] ?? '-'); ?>
+            </div>
             <div class="col-md-3"><strong>Jumlah Soal</strong><br><span
                     id="jumlah_soal_info"><?= (int) ($naskah['jumlah_soal'] ?? 0); ?></span></div>
             <div class="col-md-3"><strong>Status</strong><br><span
@@ -417,98 +435,98 @@
     }
 
     function hapusJawabanRow(button) {
-    const tipe = $('#tipe_soal').val();
-    const totalRow = $('#area_jawaban .jawaban-row').length;
+        const tipe = $('#tipe_soal').val();
+        const totalRow = $('#area_jawaban .jawaban-row').length;
 
-    if ((tipe === 'pg' || tipe === 'pg_kompleks') && totalRow <= 2) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: 'Minimal harus ada 2 pilihan jawaban.'
+        if ((tipe === 'pg' || tipe === 'pg_kompleks') && totalRow <= 2) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Perhatian',
+                text: 'Minimal harus ada 2 pilihan jawaban.'
+            });
+            return;
+        }
+
+        if (tipe === 'benar_salah' && totalRow <= 1) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Perhatian',
+                text: 'Minimal harus ada 1 pernyataan.'
+            });
+            return;
+        }
+
+        $(button).closest('.jawaban-row').remove();
+
+        if (tipe === 'pg') {
+            refreshPilihanPg();
+        } else if (tipe === 'pg_kompleks') {
+            refreshPilihanKompleks();
+        } else if (tipe === 'benar_salah') {
+            refreshPernyataan();
+        }
+    }
+
+    function refreshPilihanPg() {
+        jumlahPilihan = 0;
+
+        $('#area_jawaban .jawaban-row').each(function (i) {
+            const label = String.fromCharCode(65 + i);
+
+            $(this).find('.jawaban-label').text('Pilihan ' + label);
+            $(this).find('input[type="text"]')
+                .attr('name', 'jawaban_teks[' + i + ']')
+                .attr('placeholder', 'Masukkan pilihan ' + label + ' ...');
+
+            $(this).find('input[type="radio"]')
+                .attr('name', 'jawaban_benar_pg')
+                .val(i);
+
+            jumlahPilihan++;
         });
-        return;
     }
 
-    if (tipe === 'benar_salah' && totalRow <= 1) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: 'Minimal harus ada 1 pernyataan.'
+    function refreshPilihanKompleks() {
+        jumlahPilihan = 0;
+
+        $('#area_jawaban .jawaban-row').each(function (i) {
+            const label = String.fromCharCode(65 + i);
+
+            $(this).find('.jawaban-label').text('Pilihan ' + label);
+            $(this).find('input[type="text"]')
+                .attr('name', 'jawaban_teks[' + i + ']')
+                .attr('placeholder', 'Masukkan pilihan ' + label + ' ...');
+
+            $(this).find('input[type="checkbox"]')
+                .attr('name', 'jawaban_benar_kompleks[]')
+                .val(i);
+
+            jumlahPilihan++;
         });
-        return;
     }
 
-    $(button).closest('.jawaban-row').remove();
+    function refreshPernyataan() {
+        jumlahPernyataan = 0;
 
-    if (tipe === 'pg') {
-        refreshPilihanPg();
-    } else if (tipe === 'pg_kompleks') {
-        refreshPilihanKompleks();
-    } else if (tipe === 'benar_salah') {
-        refreshPernyataan();
+        $('#area_jawaban .jawaban-row').each(function (i) {
+            $(this).find('.jawaban-label').text('Pernyataan ' + (i + 1));
+
+            $(this).find('input[type="text"]')
+                .attr('name', 'pernyataan_teks[' + i + ']')
+                .attr('placeholder', 'Masukkan pernyataan ...');
+
+            $(this).find('select')
+                .attr('name', 'pernyataan_kunci[' + i + ']');
+
+            jumlahPernyataan++;
+        });
     }
-}
 
-function refreshPilihanPg() {
-    jumlahPilihan = 0;
+    function tambahPilihan(teks = '', benar = false) {
+        const index = jumlahPilihan++;
+        const label = String.fromCharCode(65 + index);
 
-    $('#area_jawaban .jawaban-row').each(function (i) {
-        const label = String.fromCharCode(65 + i);
-
-        $(this).find('.jawaban-label').text('Pilihan ' + label);
-        $(this).find('input[type="text"]')
-            .attr('name', 'jawaban_teks[' + i + ']')
-            .attr('placeholder', 'Masukkan pilihan ' + label + ' ...');
-
-        $(this).find('input[type="radio"]')
-            .attr('name', 'jawaban_benar_pg')
-            .val(i);
-
-        jumlahPilihan++;
-    });
-}
-
-function refreshPilihanKompleks() {
-    jumlahPilihan = 0;
-
-    $('#area_jawaban .jawaban-row').each(function (i) {
-        const label = String.fromCharCode(65 + i);
-
-        $(this).find('.jawaban-label').text('Pilihan ' + label);
-        $(this).find('input[type="text"]')
-            .attr('name', 'jawaban_teks[' + i + ']')
-            .attr('placeholder', 'Masukkan pilihan ' + label + ' ...');
-
-        $(this).find('input[type="checkbox"]')
-            .attr('name', 'jawaban_benar_kompleks[]')
-            .val(i);
-
-        jumlahPilihan++;
-    });
-}
-
-function refreshPernyataan() {
-    jumlahPernyataan = 0;
-
-    $('#area_jawaban .jawaban-row').each(function (i) {
-        $(this).find('.jawaban-label').text('Pernyataan ' + (i + 1));
-
-        $(this).find('input[type="text"]')
-            .attr('name', 'pernyataan_teks[' + i + ']')
-            .attr('placeholder', 'Masukkan pernyataan ...');
-
-        $(this).find('select')
-            .attr('name', 'pernyataan_kunci[' + i + ']');
-
-        jumlahPernyataan++;
-    });
-}
-
-   function tambahPilihan(teks = '', benar = false) {
-    const index = jumlahPilihan++;
-    const label = String.fromCharCode(65 + index);
-
-    $('#area_jawaban').append(`
+        $('#area_jawaban').append(`
         <div class="jawaban-row">
             <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
                 <span class="jawaban-label">Pilihan ${label}</span>
@@ -540,12 +558,12 @@ function refreshPernyataan() {
             </div>
         </div>
     `);
-}
+    }
     function tambahPilihanKompleks(teks = '', benar = false) {
-    const index = jumlahPilihan++;
-    const label = String.fromCharCode(65 + index);
+        const index = jumlahPilihan++;
+        const label = String.fromCharCode(65 + index);
 
-    $('#area_jawaban').append(`
+        $('#area_jawaban').append(`
         <div class="jawaban-row">
             <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
                 <span class="jawaban-label">Pilihan ${label}</span>
@@ -577,11 +595,11 @@ function refreshPernyataan() {
             </div>
         </div>
     `);
-}
+    }
     function tambahPernyataan(teks = '', kunci = '1') {
-    const index = jumlahPernyataan++;
+        const index = jumlahPernyataan++;
 
-    $('#area_jawaban').append(`
+        $('#area_jawaban').append(`
         <div class="jawaban-row">
             <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
                 <span class="jawaban-label">Pernyataan ${index + 1}</span>
@@ -611,7 +629,7 @@ function refreshPernyataan() {
             </div>
         </div>
     `);
-}
+    }
     function renderJawabanEdit(tipe, jawaban) {
         if (tipe === 'pg') {
             $('#judul_area_jawaban').text('Jawaban Pilihan Ganda');

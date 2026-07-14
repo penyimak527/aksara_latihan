@@ -150,7 +150,7 @@
 				let end = start + paging.pageSize;
 				let $rows = $selector;
 
-				$rows.hide();				for (let i = start; i < end; i++) {
+				$rows.hide(); for (let i = start; i < end; i++) {
 					$rows.eq(i).show();
 				}
 			}
@@ -180,4 +180,4 @@
 		});
 	}
 
-	</script>
+</script>

@@ -13,7 +13,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
         <div class="col-md-12">
             <div class="mb-2">
                 <label class="form-label">Nama Sesi</label>
-                <input type="text" name="nama_sesi" class="form-control" placeholder="Contoh: UAS Ganjil Matematika Kelas 5">
+                <input type="text" name="nama_sesi" class="form-control"
+                    placeholder="Contoh: UAS Ganjil Matematika Kelas 5">
             </div>
         </div>
         <div class="col-md-6">
@@ -60,7 +61,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
                 <select name="id_kategori_soal" class="form-control">
                     <option value="">Pilih Kategori Soal</option>
                     <?php foreach (($dropdown['kategori'] ?? []) as $kategori): ?>
-                        <option value="<?= $kategori['id']; ?>"><?= htmlspecialchars($kategori['nama_kategori_soal']); ?></option>
+                        <option value="<?= $kategori['id']; ?>"><?= htmlspecialchars($kategori['nama_kategori_soal']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -81,8 +83,10 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
                         <?php foreach (($dropdown['kelas'] ?? []) as $kelas): ?>
                             <div class="col-md-3 col-6">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="id_kelas[]" value="<?= $kelas['id']; ?>" id="<?= $formPrefix; ?>_kelas_<?= $kelas['id']; ?>">
-                                    <label class="form-check-label" for="<?= $formPrefix; ?>_kelas_<?= $kelas['id']; ?>">Kelas <?= htmlspecialchars($kelas['nama_kelas']); ?></label>
+                                    <input class="form-check-input" type="checkbox" name="id_kelas[]"
+                                        value="<?= $kelas['id']; ?>" id="<?= $formPrefix; ?>_kelas_<?= $kelas['id']; ?>">
+                                    <label class="form-check-label" for="<?= $formPrefix; ?>_kelas_<?= $kelas['id']; ?>">Kelas
+                                        <?= htmlspecialchars($kelas['nama_kelas']); ?></label>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -121,7 +125,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
             <div class="mb-2">
                 <label class="form-label">Durasi Timer</label>
                 <div class="input-group">
-                    <input type="number" name="durasi_timer" class="form-control" placeholder="Durasi dalam menit ..." min="1">
+                    <input type="number" name="durasi_timer" class="form-control" placeholder="Durasi dalam menit ..."
+                        min="1">
                     <span class="input-group-text">menit</span>
                 </div>
             </div>
@@ -146,7 +151,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
             <h4 class="header-title mb-1">Sesi Soal</h4>
             <small class="text-muted">Mengatur naskah soal, kelas, jadwal, dan timer.</small>
         </div>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahSesi" onclick="resetTambahSesi()">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahSesi"
+            onclick="resetTambahSesi()">
             <i class="ri-add-line"></i> Tambah
         </button>
     </div>
@@ -154,8 +160,10 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
         <div class="row g-2 mb-3">
             <div class="col-md-12">
                 <div class="input-group">
-                    <input type="text" id="cari_sesi" class="form-control" placeholder="Cari sesi soal ..." onkeyup="loadSesi()">
-                    <span class="input-group-text bg-primary text-white" id="inputGroupPrepend"><i class="ri-search-line"></i></span>
+                    <input type="text" id="cari_sesi" class="form-control" placeholder="Cari sesi soal ..."
+                        onkeyup="loadSesi()">
+                    <span class="input-group-text bg-primary text-white" id="inputGroupPrepend"><i
+                            class="ri-search-line"></i></span>
                 </div>
             </div>
             <div class="col-md-3">
@@ -170,7 +178,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
                 <select id="filter_kelas" class="form-control" onchange="loadSesi()">
                     <option value="Semua">Pilih Kelas</option>
                     <?php foreach (($dropdown['kelas'] ?? []) as $kelas): ?>
-                        <option value="<?= $kelas['id']; ?>"><?= $kelas['nama_jenjang']?> <?= htmlspecialchars($kelas['nama_kelas']); ?></option>
+                        <option value="<?= $kelas['id']; ?>"><?= $kelas['nama_jenjang'] ?>
+                            <?= htmlspecialchars($kelas['nama_kelas']); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -178,7 +187,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
                 <select id="filter_mapel" class="form-control" onchange="loadSesi()">
                     <option value="Semua">Pilih Mata Pelajaran</option>
                     <?php foreach (($dropdown['mapel'] ?? []) as $mapel): ?>
-                        <option value="<?= $mapel['id']; ?>"><?= htmlspecialchars($mapel['nama_mata_pelajaran']); ?></option>
+                        <option value="<?= $mapel['id']; ?>"><?= htmlspecialchars($mapel['nama_mata_pelajaran']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -294,25 +304,25 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
         $('#formTambahSesi')[0].reset();
         $('#formTambahSesi [name="status_aktif"]').val('1');
         <?php if ($id_level_login == '2'): ?>
-        $('#formTambahSesi [name="id_guru_pengampu"]').val('<?= $id_user_login; ?>');
+            $('#formTambahSesi [name="id_guru_pengampu"]').val('<?= $id_user_login; ?>');
         <?php endif; ?>
         loadNaskahOptions('#formTambahSesi');
     }
 
     function renderSesi(row, index) {
-    const statusNow = String(row.status_aktif) === '0' ? '0' : '1';
-    const isAktif = statusNow === '1';
+        const statusNow = String(row.status_aktif) === '0' ? '0' : '1';
+        const isAktif = statusNow === '1';
 
-    const next = isAktif ? '0' : '1';
-    const btnTitle = isAktif ? 'Nonaktifkan' : 'Aktifkan';
-    const btnClass = isAktif ? 'btn-outline-danger' : 'btn-outline-success';
-    const btnIcon = isAktif ? 'ri-forbid-line' : 'ri-check-line';
-    const bisaHapus = String(row.bisa_hapus || '0') === '1';
-    const btnHapus = bisaHapus
-        ? `<button type="button" class="btn btn-outline-danger btn-sm" title="Hapus sesi" onclick="hapusSesi(${row.id})"><i class="ri-delete-bin-line"></i></button>`
-        : `<button type="button" class="btn btn-outline-secondary btn-sm" title="${escapeHtml(row.alasan_hapus || 'Sesi tidak dapat dihapus.')}" disabled><i class="ri-delete-bin-line"></i></button>`;
+        const next = isAktif ? '0' : '1';
+        const btnTitle = isAktif ? 'Nonaktifkan' : 'Aktifkan';
+        const btnClass = isAktif ? 'btn-outline-danger' : 'btn-outline-success';
+        const btnIcon = isAktif ? 'ri-forbid-line' : 'ri-check-line';
+        const bisaHapus = String(row.bisa_hapus || '0') === '1';
+        const btnHapus = bisaHapus
+            ? `<button type="button" class="btn btn-outline-danger btn-sm" title="Hapus sesi" onclick="hapusSesi(${row.id})"><i class="ri-delete-bin-line"></i></button>`
+            : `<button type="button" class="btn btn-outline-secondary btn-sm" title="${escapeHtml(row.alasan_hapus || 'Sesi tidak dapat dihapus.')}" disabled><i class="ri-delete-bin-line"></i></button>`;
 
-    return `<div class="card-mapel">
+        return `<div class="card-mapel">
         <div class="keterangan-mapel">
             <div class="keterangan-mapel-kiri">
                 <h5 class="judul-mapel" style="margin:0; margin-bottom: 8px;">
@@ -341,7 +351,7 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
             </div>
         </div>
     </div>`;
-}
+    }
 
     function loadSesi() {
         $.ajax({

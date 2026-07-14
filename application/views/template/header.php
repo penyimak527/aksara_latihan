@@ -239,7 +239,8 @@
 								<ul class="sub-menu">
 									<?php if ($menuLatihanSoalDashboard): ?>
 										<li class="side-nav-item">
-											<a href="<?= base_url("/" . $menuLatihanSoalDashboard['path']) ?>" class="side-nav-link">
+											<a href="<?= base_url("/" . $menuLatihanSoalDashboard['path']) ?>"
+												class="side-nav-link">
 												<span class="menu-text">Dashboard Latihan Soal</span>
 											</a>
 										</li>
@@ -255,22 +256,22 @@
 											<div class="collapse" id="master_soal_latihan">
 												<ul class="sub-menu">
 													<?php foreach ($menuLatihanSoalMaster as $menu): ?>
-												<?php
-												$namaMenuMasterSoal = $menu['name'];
-												if ($menu['path'] == 'latihan_soal/master/mata_pelajaran') {
-													$namaMenuMasterSoal = 'Mata Pelajaran';
-												} elseif ($menu['path'] == 'latihan_soal/master/materi') {
-													$namaMenuMasterSoal = 'Materi';
-												} elseif ($menu['path'] == 'latihan_soal/master/kategori_soal') {
-													$namaMenuMasterSoal = 'Kategori Soal';
-												}
-												?>
-												<li class="side-nav-item">
-													<a href="<?= base_url("/" . $menu['path']) ?>" class="side-nav-link">
-														<span class="menu-text"><?= $namaMenuMasterSoal ?></span>
-													</a>
-												</li>
-											<?php endforeach; ?>
+														<?php
+														$namaMenuMasterSoal = $menu['name'];
+														if ($menu['path'] == 'latihan_soal/master/mata_pelajaran') {
+															$namaMenuMasterSoal = 'Mata Pelajaran';
+														} elseif ($menu['path'] == 'latihan_soal/master/materi') {
+															$namaMenuMasterSoal = 'Materi';
+														} elseif ($menu['path'] == 'latihan_soal/master/kategori_soal') {
+															$namaMenuMasterSoal = 'Kategori Soal';
+														}
+														?>
+														<li class="side-nav-item">
+															<a href="<?= base_url("/" . $menu['path']) ?>" class="side-nav-link">
+																<span class="menu-text"><?= $namaMenuMasterSoal ?></span>
+															</a>
+														</li>
+													<?php endforeach; ?>
 												</ul>
 											</div>
 										</li>

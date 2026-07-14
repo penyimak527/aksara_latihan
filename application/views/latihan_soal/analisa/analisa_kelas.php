@@ -357,14 +357,15 @@
 			text-align: left;
 		}
 	}
+
 	.tooltip-inner {
-    max-width: 260px;
-    text-align: left;
-    white-space: normal;
-    font-size: 11px;
-    line-height: 1.35;
-    padding: 6px 8px;
-}
+		max-width: 260px;
+		text-align: left;
+		white-space: normal;
+		font-size: 11px;
+		line-height: 1.35;
+		padding: 6px 8px;
+	}
 </style>
 
 <div class="card mb-3">
@@ -388,29 +389,35 @@
 				<select id="id_kelas" class="form-control">
 					<option value="">Pilih Kelas</option>
 					<?php foreach (($dropdown['kelas'] ?? []) as $row): ?>
-						<option value="<?= $row['id']; ?>"><?= $row['nama_jenjang']?> <?= $row['nama_kelas']; ?></option>
+						<option value="<?= $row['id']; ?>"><?= $row['nama_jenjang'] ?> 	<?= $row['nama_kelas']; ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>
 			<div class="col-md-2 text-end">
-				<button type="button" class="btn btn-primary w-100" id="btn-tampilkan"><i class="ri-search-line"></i> Tampilkan</button>
+				<button type="button" class="btn btn-primary w-100" id="btn-tampilkan"><i class="ri-search-line"></i>
+					Tampilkan</button>
 			</div>
 		</div>
-		<div class="text-muted small mt-2">Filter utama hanya untuk menentukan tahun ajaran dan kelas. Ringkasan kelas tidak mengikuti filter mata pelajaran, jenis pengerjaan, atau kategori.</div>
+		<div class="text-muted small mt-2">Filter utama hanya untuk menentukan tahun ajaran dan kelas. Ringkasan kelas
+			tidak mengikuti filter mata pelajaran, jenis pengerjaan, atau kategori.</div>
 	</div>
 </div>
 
-<div id="alert-awal" class="alert alert-info">Pilih tahun ajaran dan kelas, lalu klik tombol <b>Tampilkan</b> untuk melihat analisa kelas.</div>
+<div id="alert-awal" class="alert alert-info">Pilih tahun ajaran dan kelas, lalu klik tombol <b>Tampilkan</b> untuk
+	melihat analisa kelas.</div>
 <div id="area-analisa" style="display:none;">
 	<div class="card mb-3">
-		<div class="card-header border-bottom border-dashed"><h4 class="header-title mb-0">Ringkasan Kelas</h4></div>
+		<div class="card-header border-bottom border-dashed">
+			<h4 class="header-title mb-0">Ringkasan Kelas</h4>
+		</div>
 		<div class="card-body" id="ringkasan-kelas"></div>
 	</div>
 
 	<div class="card mb-3">
 		<div class="card-header border-bottom border-dashed">
 			<h4 class="header-title mb-0">Filter Analisis</h4>
-			<div class="text-muted small mt-1">Filter ini hanya berlaku untuk Peringkat Siswa, Analisis Topik, dan Daftar Siswa.</div>
+			<div class="text-muted small mt-1">Filter ini hanya berlaku untuk Peringkat Siswa, Analisis Topik, dan
+				Daftar Siswa.</div>
 		</div>
 		<div class="card-body">
 			<div class="row g-2 align-items-end">
@@ -441,7 +448,8 @@
 					</select>
 				</div>
 				<div class="col-12 text-end mt-3">
-					<button type="button" class="btn btn-outline-primary" id="btn-filter-analisis"><i class="ri-filter-3-line"></i> Terapkan Filter Analisis</button>
+					<button type="button" class="btn btn-outline-primary" id="btn-filter-analisis"><i
+							class="ri-filter-3-line"></i> Terapkan Filter Analisis</button>
 				</div>
 			</div>
 		</div>
@@ -460,7 +468,8 @@
 			<div class="card h-100">
 				<div class="card-header border-bottom border-dashed">
 					<h4 class="header-title mb-0"><i class="ri-book-open-line text-info me-1"></i> Analisis Topik</h4>
-					<div class="text-muted small mt-1">Mengikuti Filter Analisis di atas. Tidak ada filter tambahan di dalam Analisis Topik.</div>
+					<div class="text-muted small mt-1">Mengikuti Filter Analisis di atas. Tidak ada filter tambahan di
+						dalam Analisis Topik.</div>
 				</div>
 				<div class="card-body analysis-panel-body" id="analisa-materi"></div>
 			</div>
@@ -468,7 +477,8 @@
 	</div>
 
 	<div class="card card-daftar-siswa">
-		<div class="card-header border-bottom border-dashed d-flex align-items-center justify-content-between flex-wrap gap-2">
+		<div
+			class="card-header border-bottom border-dashed d-flex align-items-center justify-content-between flex-wrap gap-2">
 			<h4 class="header-title mb-0">Daftar Siswa</h4>
 			<div style="width:260px;">
 				<input type="text" class="form-control form-control-sm" id="search_siswa" placeholder="Cari siswa ...">
@@ -493,7 +503,8 @@
 				</table>
 			</div>
 
-			<div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
+			<div
+				class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
 				<ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination"></ul>
 				<div class="d-flex align-items-center gap-2">
 					<label for="dt-length-0" class="mb-0">Tampilkan</label>

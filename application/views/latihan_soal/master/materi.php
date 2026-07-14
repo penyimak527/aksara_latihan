@@ -2,23 +2,28 @@
 	<div class="card-header border-bottom border-dashed d-flex align-items-center justify-content-between">
 		<div>
 			<h4 class="header-title mb-1">Master Materi</h4>
-			<small class="text-muted">Materi wajib terhubung ke mata pelajaran dan dipakai untuk analisa kemampuan siswa.</small>
+			<small class="text-muted">Materi wajib terhubung ke mata pelajaran dan dipakai untuk analisa kemampuan
+				siswa.</small>
 		</div>
-		<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><i class="ri-add-line"></i> Tambah</button>
+		<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><i
+				class="ri-add-line"></i> Tambah</button>
 	</div>
 	<div class="card-body">
 		<div class="row g-2 mb-3">
 			<div class="col-md-5">
 				<div class="input-group">
 					<input type="text" class="form-control" id="cari" placeholder="Cari materi ..." onkeyup="materi()">
-					<span class="input-group-text bg-primary text-white" id="inputGroupPrepend"><i class="ri-search-line"></i></span>
+					<span class="input-group-text bg-primary text-white" id="inputGroupPrepend"><i
+							class="ri-search-line"></i></span>
 				</div>
 			</div>
 			<div class="col-md-4">
 				<select class="form-control" id="filter_mapel" onchange="materi()">
 					<option value="Semua">Pilih Mata Pelajaran</option>
 					<?php foreach (($mapel ?? []) as $mp): ?>
-						<option value="<?= $mp['id']; ?>"><?= htmlspecialchars($mp['nama_mata_pelajaran']); ?><?= $mp['status_aktif'] == '0' ? ' (Tidak Aktif)' : ''; ?></option>
+						<option value="<?= $mp['id']; ?>">
+							<?= htmlspecialchars($mp['nama_mata_pelajaran']); ?>	<?= $mp['status_aktif'] == '0' ? ' (Tidak Aktif)' : ''; ?>
+						</option>
 					<?php endforeach; ?>
 				</select>
 			</div>
@@ -68,18 +73,21 @@
 							<option value="">Pilih Mata Pelajaran</option>
 							<?php foreach (($mapel ?? []) as $mp): ?>
 								<?php if ($mp['status_aktif'] == '1'): ?>
-									<option value="<?= $mp['id']; ?>"><?= htmlspecialchars($mp['nama_mata_pelajaran']); ?></option>
+									<option value="<?= $mp['id']; ?>"><?= htmlspecialchars($mp['nama_mata_pelajaran']); ?>
+									</option>
 								<?php endif; ?>
 							<?php endforeach; ?>
 						</select>
 					</div>
 					<div class="mb-2">
 						<label class="form-label">Nama Materi</label>
-						<input type="text" name="nama_materi" class="form-control" placeholder="Masukkan nama materi ...">
+						<input type="text" name="nama_materi" class="form-control"
+							placeholder="Masukkan nama materi ...">
 					</div>
 					<div class="mb-2">
 						<label class="form-label">Keterangan</label>
-						<textarea name="keterangan" class="form-control" rows="3" placeholder="Masukkan keterangan ..."></textarea>
+						<textarea name="keterangan" class="form-control" rows="3"
+							placeholder="Masukkan keterangan ..."></textarea>
 					</div>
 					<div class="mb-2">
 						<label class="form-label">Status</label>
@@ -113,7 +121,9 @@
 						<select name="id_mata_pelajaran" id="id_mata_pelajaran" class="form-control">
 							<option value="">Pilih Mata Pelajaran</option>
 							<?php foreach (($mapel ?? []) as $mp): ?>
-								<option value="<?= $mp['id']; ?>"><?= htmlspecialchars($mp['nama_mata_pelajaran']); ?><?= $mp['status_aktif'] == '0' ? ' (Tidak Aktif)' : ''; ?></option>
+								<option value="<?= $mp['id']; ?>">
+									<?= htmlspecialchars($mp['nama_mata_pelajaran']); ?>	<?= $mp['status_aktif'] == '0' ? ' (Tidak Aktif)' : ''; ?>
+								</option>
 							<?php endforeach; ?>
 						</select>
 					</div>

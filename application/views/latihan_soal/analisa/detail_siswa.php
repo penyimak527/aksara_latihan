@@ -109,12 +109,29 @@
 		margin-top: 6px;
 	}
 
-	.summary-blue { background: linear-gradient(135deg, #2563eb, #3b82f6); }
-	.summary-orange { background: linear-gradient(135deg, #f97316, #facc15); }
-	.summary-green { background: linear-gradient(135deg, #10b981, #22c55e); }
-	.summary-purple { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
-	.summary-cyan { background: linear-gradient(135deg, #0891b2, #22d3ee); }
-	.summary-pink { background: linear-gradient(135deg, #db2777, #fb7185); }
+	.summary-blue {
+		background: linear-gradient(135deg, #2563eb, #3b82f6);
+	}
+
+	.summary-orange {
+		background: linear-gradient(135deg, #f97316, #facc15);
+	}
+
+	.summary-green {
+		background: linear-gradient(135deg, #10b981, #22c55e);
+	}
+
+	.summary-purple {
+		background: linear-gradient(135deg, #7c3aed, #a78bfa);
+	}
+
+	.summary-cyan {
+		background: linear-gradient(135deg, #0891b2, #22d3ee);
+	}
+
+	.summary-pink {
+		background: linear-gradient(135deg, #db2777, #fb7185);
+	}
 
 	.panel-card {
 		border: 1px solid var(--ls-soft-border);
@@ -325,9 +342,20 @@
 		white-space: nowrap;
 	}
 
-	.pill-good { background: #d1fae5; color: #059669; }
-	.pill-mid { background: #fef3c7; color: #d97706; }
-	.pill-low { background: #fee2e2; color: #dc2626; }
+	.pill-good {
+		background: #d1fae5;
+		color: #059669;
+	}
+
+	.pill-mid {
+		background: #fef3c7;
+		color: #d97706;
+	}
+
+	.pill-low {
+		background: #fee2e2;
+		color: #dc2626;
+	}
 
 	.all-topic-row {
 		display: grid;
@@ -357,8 +385,13 @@
 		background: #10b981;
 	}
 
-	.progress-mini.mid span { background: #f59e0b; }
-	.progress-mini.low span { background: #ef4444; }
+	.progress-mini.mid span {
+		background: #f59e0b;
+	}
+
+	.progress-mini.low span {
+		background: #ef4444;
+	}
 
 
 	.empty-state {
@@ -368,6 +401,12 @@
 		color: #7b8794;
 		font-size: 13px;
 		background: #fafcff;
+	}
+
+	.preview-pembahasan p {
+		margin-top: 0;
+		margin-bottom: 4px;
+		line-height: 1.4;
 	}
 
 	.preview-pembahasan p:last-child {
@@ -444,7 +483,8 @@
 				<div class="row g-2 align-items-center">
 					<div class="col-md-7">
 						<h4 class="panel-title mb-1">Ringkasan Nilai</h4>
-						<div class="student-subtitle">Pilih mata pelajaran untuk melihat rata-rata mapel dan riwayat ujian terkait.</div>
+						<div class="student-subtitle">Pilih mata pelajaran untuk melihat rata-rata mapel dan riwayat
+							ujian terkait.</div>
 					</div>
 					<div class="col-md-5">
 						<label class="form-label mb-1">Mata Pelajaran</label>
@@ -474,7 +514,8 @@
 						</div>
 						<div id="riwayat-pengerjaan" class="history-list"></div>
 
-						<div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
+						<div
+							class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
 							<ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination-riwayat"></ul>
 							<div class="d-flex align-items-center gap-2">
 								<label for="dt-length-riwayat" class="mb-0">Tampilkan</label>
@@ -509,9 +550,11 @@
 						<div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
 							<div>
 								<h4 class="panel-title mb-1">Preview Jawaban</h4>
-								<div class="student-subtitle">Klik tombol untuk melihat detail soal dan jawaban dalam modal.</div>
+								<div class="student-subtitle">Klik tombol untuk melihat detail soal dan jawaban dalam
+									modal.</div>
 							</div>
-							<button type="button" class="btn btn-sm btn-outline-primary" id="btn-preview">Preview Jawaban</button>
+							<button type="button" class="btn btn-sm btn-outline-primary" id="btn-preview">Preview
+								Jawaban</button>
 						</div>
 					</div>
 				</div>
@@ -520,23 +563,26 @@
 	</div>
 </div>
 
-<div class="modal fade" id="modal-preview-jawaban" tabindex="-1" aria-labelledby="modal-preview-jawaban-label" aria-hidden="true">
+<div class="modal fade" id="modal-preview-jawaban" tabindex="-1" aria-labelledby="modal-preview-jawaban-label"
+	aria-hidden="true">
 	<div class="modal-dialog modal-xl modal-dialog-scrollable">
 		<div class="modal-content">
 			<div class="modal-header">
 				<div>
 					<h5 class="modal-title" id="modal-preview-jawaban-label">Preview Jawaban</h5>
-					<div class="student-subtitle mb-0" id="preview-modal-subtitle">Detail soal, jawaban siswa, kunci jawaban, status, dan nilai.</div>
+					<div class="student-subtitle mb-0" id="preview-modal-subtitle">Detail soal, jawaban siswa, kunci
+						jawaban, status, dan nilai.</div>
 				</div>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close"></button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal"
+					aria-label="Close"></button>
 			</div>
 			<div class="modal-body p-2" id="preview-jawaban-modal-body">
 				<div class="empty-state">Belum ada preview jawaban.</div>
 			</div>
 			<div class="modal-footer justify-content-between">
-	<div class="fw-bold text-muted">Total Nilai</div>
-	<div class="fw-bold text-success fs-4" id="preview-total-nilai">-</div>
-</div>
+				<div class="fw-bold text-muted">Total Nilai</div>
+				<div class="fw-bold text-success fs-4" id="preview-total-nilai">-</div>
+			</div>
 			<div class=" modal-footer">
 				<button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
 			</div>
@@ -678,7 +724,7 @@
 			<div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
 				<div class="d-flex align-items-center gap-2">
 					<a href="<?= base_url('latihan_soal/analisa_kelas'); ?>" class="back-round" title="Kembali"><i
-                        class="ti ti-arrow-left"></i></a>
+						class="ti ti-arrow-left"></i></a>
 					<div>
 						<h4 class="student-name-title">${escapeHtml(s.nama_siswa)}</h4>
 						<div class="student-subtitle">${jumlah} hasil ujian · ${escapeHtml(s.kelas_filter || '-')} · ${escapeHtml(s.tahun_ajaran || '-')}</div>
@@ -800,28 +846,28 @@
 			}
 		});
 	}
-function statusPengerjaanText(d) {
-	if (!d) {
-		return '-';
-	}
+	function statusPengerjaanText(d) {
+		if (!d) {
+			return '-';
+		}
 
-	if (d.status_pengerjaan == 'Proses') {
-		return 'Sedang mengerjakan';
-	}
+		if (d.status_pengerjaan == 'Proses') {
+			return 'Sedang mengerjakan';
+		}
 
-	if (parseInt(d.reset_jawaban || 0) > 0) {
-		return 'Jawaban pernah dihapus karena keluar halaman';
-	}
+		if (parseInt(d.reset_jawaban || 0) > 0) {
+			return 'Jawaban pernah dihapus karena keluar halaman';
+		}
 
-	if (d.status_pengerjaan == 'Waktu Habis') {
-		return 'Selesai karena timer habis';
-	}
+		if (d.status_pengerjaan == 'Waktu Habis') {
+			return 'Selesai karena timer habis';
+		}
 
-	if (d.status_pengerjaan == 'Selesai') {
-		return 'Selesai';
+		if (d.status_pengerjaan == 'Selesai') {
+			return 'Selesai';
+		}
+		return d.status_pengerjaan || '-';
 	}
-	return d.status_pengerjaan || '-';
-}
 
 	function renderDetailSesi(d) {
 		if (!d) {
@@ -832,7 +878,7 @@ function statusPengerjaanText(d) {
 		let benar = d.jumlah_benar || 0;
 		let total = (parseInt(d.jumlah_benar || 0) + parseInt(d.jumlah_salah || 0) + parseInt(d.jumlah_kosong || 0));
 		let benarText = total > 0 ? `${benar}/${total} benar` : `${benar} benar`;
-let statusText = statusPengerjaanText(d);
+		let statusText = statusPengerjaanText(d);
 		$('#detail-sesi').html(`
 			<div class="session-head">
 				<div>
@@ -1007,17 +1053,17 @@ let statusText = statusPengerjaanText(d);
 					gambarUrl = '<?= base_url(); ?>' + gambarUrl;
 				}
 
-let gambar = gambarUrl ? `
+				let gambar = gambarUrl ? `
 	<div class="mb-2">
 		<div class="text-muted fw-bold" style="font-size:11px;">Gambar Soal</div>
 		<img src="${escapeHtml(gambarUrl)}" class="img-fluid rounded border" style="max-height:160px;">
 	</div>
 ` : '';
 
-let statusInfo = statusJawabanBadge(row.status_jawaban);
-let nomor = row.nomor_soal || (index + 1);
+				let statusInfo = statusJawabanBadge(row.status_jawaban);
+				let nomor = row.nomor_soal || (index + 1);
 
-html += `
+				html += `
 	<div class="border rounded mb-2 bg-white">
 		<div class="d-flex align-items-center justify-content-between gap-2 px-2 py-2 border-bottom bg-light">
 			<div class="min-w-0">
@@ -1075,33 +1121,33 @@ html += `
 		$('#preview-modal-subtitle').text(subtitle);
 	}
 	function statusJawabanBadge(status) {
-	let textStatus = String(status || '-');
-	let normalized = textStatus.toLowerCase();
+		let textStatus = String(status || '-');
+		let normalized = textStatus.toLowerCase();
 
-	if (normalized.indexOf('sebagian') !== -1) {
+		if (normalized.indexOf('sebagian') !== -1) {
+			return {
+				text: textStatus,
+				className: 'badge bg-warning text-dark'
+			};
+		}
+
+		if (normalized.indexOf('benar') !== -1) {
+			return {
+				text: textStatus,
+				className: 'badge bg-success'
+			};
+		}
+
+		if (normalized.indexOf('salah') !== -1) {
+			return {
+				text: textStatus,
+				className: 'badge bg-danger'
+			};
+		}
+
 		return {
 			text: textStatus,
-			className: 'badge bg-warning text-dark'
+			className: 'badge bg-secondary'
 		};
 	}
-
-	if (normalized.indexOf('benar') !== -1) {
-		return {
-			text: textStatus,
-			className: 'badge bg-success'
-		};
-	}
-
-	if (normalized.indexOf('salah') !== -1) {
-		return {
-			text: textStatus,
-			className: 'badge bg-danger'
-		};
-	}
-
-	return {
-		text: textStatus,
-		className: 'badge bg-secondary'
-	};
-}
 </script>

@@ -109,8 +109,10 @@ function bagi_soal_dua_kolom($soal)
                  * Jangan memotong satu soal. Jika sisa kolom tidak cukup,
                  * soal utuh dipindahkan ke kolom atau halaman berikutnya.
                  */
-                if ($total_estimasi_kolom > 0 &&
-                    ($total_estimasi_kolom + $tinggi) > $batas_kolom) {
+                if (
+                    $total_estimasi_kolom > 0 &&
+                    ($total_estimasi_kolom + $tinggi) > $batas_kolom
+                ) {
                     break;
                 }
 
@@ -194,6 +196,7 @@ function render_soal_pdf_naskah($row, $index)
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title><?= h_naskah($naskah['nama_naskah_soal'] ?? 'Naskah Soal'); ?></title>
@@ -380,13 +383,17 @@ function render_soal_pdf_naskah($row, $index)
         }
     </style>
 </head>
+
 <body>
     <?php if (empty($soal)): ?>
         <div class="page">
             <div class="kop">
                 <h1>KOP BIMBEL AKSARA</h1>
-                <p>Alamat: ....................................................................................................................</p>
-                <p>Telepon: ........................................ &nbsp; Email: ....................................................</p>
+                <p>Alamat:
+                    ....................................................................................................................
+                </p>
+                <p>Telepon: ........................................ &nbsp; Email:
+                    ....................................................</p>
             </div>
 
             <div class="title">
@@ -397,24 +404,27 @@ function render_soal_pdf_naskah($row, $index)
         </div>
     <?php else: ?>
         <?php
-            $halaman_soal = bagi_soal_dua_kolom($soal);
-            $total_halaman = count($halaman_soal);
-            $nomor_render = 0;
+        $halaman_soal = bagi_soal_dua_kolom($soal);
+        $total_halaman = count($halaman_soal);
+        $nomor_render = 0;
         ?>
 
         <?php foreach ($halaman_soal as $page_index => $halaman): ?>
             <?php
-                $style_page_break = ($page_index < $total_halaman - 1) ? 'page-break-after: always;' : '';
+            $style_page_break = ($page_index < $total_halaman - 1) ? 'page-break-after: always;' : '';
             ?>
 
             <div class="page <?= $page_index > 0 ? 'page-lanjutan' : ''; ?>" style="<?= $style_page_break; ?>">
                 <?php if ($page_index == 0): ?>
                     <div class="kop">
                         <h1>KOP BIMBEL AKSARA</h1>
-                        <p>Alamat: ....................................................................................................................</p>
-                        <p>Telepon: ........................................ &nbsp; Email: ....................................................</p>
+                        <p>Alamat:
+                            ....................................................................................................................
+                        </p>
+                        <p>Telepon: ........................................ &nbsp; Email:
+                            ....................................................</p>
                     </div>
-<!-- 
+                    <!-- 
                     <div class="title">
                         <h2>NASKAH SOAL</h2>
                     </div> -->
@@ -424,7 +434,9 @@ function render_soal_pdf_naskah($row, $index)
                             <td style="width: 120px;">Nama Naskah</td>
                             <td style="width: 8px;">:</td>
                             <!-- <td style="width: ;"><?= h_naskah($naskah['nama_naskah_soal'] ?? '-'); ?></td> -->
-                            <td style="width: 260px; max-width: 260px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.35;"><?= h_naskah($naskah['nama_naskah_soal'] ?? '-'); ?></td>
+                            <td
+                                style="width: 260px; max-width: 260px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.35;">
+                                <?= h_naskah($naskah['nama_naskah_soal'] ?? '-'); ?></td>
                             <td style="width: 100px;">Jumlah Soal</td>
                             <td style="width: 8px;">:</td>
                             <td><?= (int) ($naskah['jumlah_soal'] ?? 0); ?> soal</td>
@@ -452,8 +464,8 @@ function render_soal_pdf_naskah($row, $index)
                     <div class="soal-col left">
                         <?php foreach ($halaman['kiri'] as $row): ?>
                             <?php
-                                render_soal_pdf_naskah($row, $nomor_render);
-                                $nomor_render++;
+                            render_soal_pdf_naskah($row, $nomor_render);
+                            $nomor_render++;
                             ?>
                         <?php endforeach; ?>
                     </div>
@@ -461,8 +473,8 @@ function render_soal_pdf_naskah($row, $index)
                     <div class="soal-col right">
                         <?php foreach ($halaman['kanan'] as $row): ?>
                             <?php
-                                render_soal_pdf_naskah($row, $nomor_render);
-                                $nomor_render++;
+                            render_soal_pdf_naskah($row, $nomor_render);
+                            $nomor_render++;
                             ?>
                         <?php endforeach; ?>
                     </div>
@@ -471,4 +483,5 @@ function render_soal_pdf_naskah($row, $index)
         <?php endforeach; ?>
     <?php endif; ?>
 </body>
+
 </html>

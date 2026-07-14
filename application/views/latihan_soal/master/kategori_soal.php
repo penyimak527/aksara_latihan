@@ -2,16 +2,20 @@
 	<div class="card-header border-bottom border-dashed d-flex align-items-center justify-content-between">
 		<div>
 			<h4 class="header-title mb-1">Master Kategori Soal</h4>
-			<small class="text-muted">Kelola kategori soal untuk mengelompokkan soal dan sesi soal seperti UAS, UTS, Try Out, dan Latihan Harian.</small>
+			<small class="text-muted">Kelola kategori soal untuk mengelompokkan soal dan sesi soal seperti UAS, UTS, Try
+				Out, dan Latihan Harian.</small>
 		</div>
-		<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><i class="ri-add-line"></i> Tambah</button>
+		<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><i
+				class="ri-add-line"></i> Tambah</button>
 	</div>
 	<div class="card-body">
 		<div class="row g-2 mb-3">
 			<div class="col-md-8">
 				<div class="input-group">
-					<input type="text" class="form-control" id="cari" placeholder="Cari kategori soal ..." onkeyup="kategori_soal()">
-					<span class="input-group-text bg-primary text-white" id="inputGroupPrepend"><i class="ri-search-line"></i></span>
+					<input type="text" class="form-control" id="cari" placeholder="Cari kategori soal ..."
+						onkeyup="kategori_soal()">
+					<span class="input-group-text bg-primary text-white" id="inputGroupPrepend"><i
+							class="ri-search-line"></i></span>
 				</div>
 			</div>
 			<div class="col-md-4">
@@ -56,11 +60,13 @@
 				<form id="form-tambah">
 					<div class="mb-2">
 						<label class="form-label">Nama Kategori Soal</label>
-						<input type="text" name="nama_kategori_soal" class="form-control" placeholder="Masukkan nama kategori soal ...">
+						<input type="text" name="nama_kategori_soal" class="form-control"
+							placeholder="Masukkan nama kategori soal ...">
 					</div>
 					<div class="mb-2">
 						<label class="form-label">Keterangan</label>
-						<textarea name="keterangan" class="form-control" rows="3" placeholder="Masukkan keterangan ..."></textarea>
+						<textarea name="keterangan" class="form-control" rows="3"
+							placeholder="Masukkan keterangan ..."></textarea>
 					</div>
 					<div class="mb-2">
 						<label class="form-label">Status</label>
