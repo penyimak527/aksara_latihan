@@ -370,6 +370,23 @@
 		background: #fafcff;
 	}
 
+	.preview-pembahasan p:last-child {
+		margin-bottom: 0;
+	}
+
+	.preview-pembahasan ol,
+	.preview-pembahasan ul {
+		padding-left: 20px;
+		margin-bottom: 8px;
+	}
+
+	.preview-pembahasan blockquote {
+		border-left: 3px solid #d7dee8;
+		padding-left: 10px;
+		margin: 8px 0;
+		color: #64748b;
+	}
+
 	@media (max-width: 991px) {
 		.history-list {
 			max-height: none;
@@ -559,6 +576,38 @@
 
 	function escapeHtml(text) {
 		return $('<div/>').text(text ?? '').html();
+	}
+
+	function sanitizePembahasanHtml(html) {
+		const template = document.createElement('template');
+		template.innerHTML = String(html || '');
+
+		template.content.querySelectorAll('script, style, iframe, object, embed').forEach(function (node) {
+			node.remove();
+		});
+
+		template.content.querySelectorAll('*').forEach(function (node) {
+			Array.from(node.attributes).forEach(function (attr) {
+				const name = attr.name.toLowerCase();
+				const value = String(attr.value || '').trim();
+
+				if (name.indexOf('on') === 0 || name === 'style') {
+					node.removeAttribute(attr.name);
+					return;
+				}
+
+				if ((name === 'href' || name === 'src') && /^javascript:/i.test(value)) {
+					node.removeAttribute(attr.name);
+				}
+			});
+
+			if (node.tagName === 'A') {
+				node.setAttribute('target', '_blank');
+				node.setAttribute('rel', 'noopener noreferrer');
+			}
+		});
+
+		return template.innerHTML;
 	}
 
 	function percentNumber(value) {
@@ -1000,7 +1049,7 @@ html += `
 						${row.pembahasan ? `
 							<tr>
 								<th class="bg-light py-1">Pembahasan</th>
-								<td class="py-1">${escapeHtml(row.pembahasan)}</td>
+								<td class="py-1 preview-pembahasan">${sanitizePembahasanHtml(row.pembahasan)}</td>
 							</tr>
 						` : ''}
 					</tbody>

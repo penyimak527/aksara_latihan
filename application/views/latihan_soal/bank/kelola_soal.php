@@ -44,6 +44,19 @@
         background: #fbfcfe;
         white-space: pre-wrap;
     }
+
+    #editor_pembahasan {
+        min-height: 160px;
+        background: #fff;
+    }
+
+    .detail-pembahasan {
+        white-space: normal;
+    }
+
+    .detail-pembahasan > :last-child {
+        margin-bottom: 0;
+    }
 </style>
 
 <div class="card mb-3">
@@ -181,8 +194,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Pembahasan</label>
-                        <textarea name="pembahasan" class="form-control" rows="3"
-                            placeholder="Masukkan pembahasan soal ..."></textarea>
+                        <div id="editor_pembahasan"></div>
+                        <input type="hidden" name="pembahasan" id="pembahasan">
                     </div>
                     <div class="jawaban-box">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -345,6 +358,8 @@
         $('#modalSoalTitle').text('Tambah Soal');
         $('#btnSimpanSoal').text('Simpan');
         $('#formSoal')[0].reset();
+        quillPembahasan.setText('');
+        $('#pembahasan').val('');
         $('#formSoal').find('[name="id_soal"]').val('');
         $('#formSoal').find('[name="nomor_soal"]').val(nextNomorSoal());
         $('#formSoal').find('[name="status_aktif"]').val('1');
@@ -624,6 +639,12 @@ function refreshPernyataan() {
     }
 
     function simpanSoal() {
+        const isiPembahasan = quillPembahasan.getText().trim() === ''
+            ? ''
+            : quillPembahasan.root.innerHTML;
+
+        $('#pembahasan').val(isiPembahasan);
+
         const form = $('#formSoal')[0];
         const data = new FormData(form);
         const url = modeFormSoal === 'edit'
@@ -672,7 +693,7 @@ function refreshPernyataan() {
                 $('#formSoal').find('[name="tipe_soal"]').val(row.tipe_soal);
                 $('#formSoal').find('[name="bobot_nilai"]').val(row.bobot_nilai);
                 $('#formSoal').find('[name="pertanyaan"]').val(row.pertanyaan || '');
-                $('#formSoal').find('[name="pembahasan"]').val(row.pembahasan || '');
+                setIsiPembahasan(row.pembahasan || '');
                 $('#formSoal').find('[name="status_aktif"]').val(row.status_aktif);
                 $('#info_gambar_soal').html(row.gambar_soal ? `Gambar saat ini: <a href="${row.gambar_soal}" target="_blank">Lihat gambar</a>` : 'Belum ada gambar.');
                 loadMateri(row.id_materi);
@@ -722,7 +743,7 @@ function refreshPernyataan() {
                     <h5>Jawaban / Kunci</h5>
                     ${jawaban || '<div class="soal-empty">Belum ada jawaban.</div>'}
                     <h5 class="mt-3">Pembahasan</h5>
-                    <div class="detail-question">${escapeHtml(row.pembahasan || 'Pembahasan belum diisi.')}</div>
+                    <div class="detail-question detail-pembahasan">${formatPembahasan(row.pembahasan)}</div>
                 `);
                 $('#modalDetailSoal').modal('show');
             },
@@ -778,6 +799,78 @@ function refreshPernyataan() {
                 }
             }
         });
+    }
+    const quillPembahasan = new Quill('#editor_pembahasan', {
+        theme: 'snow',
+        placeholder: 'Masukkan pembahasan soal ...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ header: [1, 2, 3, false] }],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                [{ align: [] }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+
+    function setIsiPembahasan(html) {
+        quillPembahasan.setText('');
+
+        if (!html) {
+            $('#pembahasan').val('');
+            return;
+        }
+
+        quillPembahasan.clipboard.dangerouslyPasteHTML(String(html));
+        $('#pembahasan').val(String(html));
+    }
+
+    function formatPembahasan(html) {
+        if (!html || String(html).trim() === '') {
+            return 'Pembahasan belum diisi.';
+        }
+
+        const template = document.createElement('template');
+        template.innerHTML = String(html);
+
+        const allowedTags = new Set([
+            'P', 'BR', 'STRONG', 'B', 'EM', 'I', 'U', 'S',
+            'OL', 'UL', 'LI', 'H1', 'H2', 'H3', 'A', 'SPAN'
+        ]);
+
+        Array.from(template.content.querySelectorAll('*')).forEach(function (element) {
+            if (!allowedTags.has(element.tagName)) {
+                element.replaceWith(...element.childNodes);
+                return;
+            }
+
+            Array.from(element.attributes).forEach(function (attribute) {
+                const name = attribute.name.toLowerCase();
+                const value = attribute.value.trim();
+                const isSafeLink = element.tagName === 'A'
+                    && name === 'href'
+                    && /^(https?:|mailto:|tel:|\/|#)/i.test(value);
+                const isSafeTarget = element.tagName === 'A'
+                    && name === 'target'
+                    && ['_blank', '_self'].includes(value);
+                const isQuillClass = name === 'class'
+                    && value.split(/\s+/).every(function (className) {
+                        return /^ql-(align|indent|direction)-/.test(className);
+                    });
+
+                if (!isSafeLink && !isSafeTarget && !isQuillClass) {
+                    element.removeAttribute(attribute.name);
+                }
+            });
+
+            if (element.tagName === 'A' && element.getAttribute('target') === '_blank') {
+                element.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+
+        return template.innerHTML || 'Pembahasan belum diisi.';
     }
 
     $(document).ready(function () {
