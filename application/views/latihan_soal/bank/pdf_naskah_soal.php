@@ -165,28 +165,40 @@ function render_soal_pdf_naskah($row, $index)
 
                 <div class="opsi">
                     <?php if ($tipe === 'benar_salah'): ?>
-                        <?php foreach (($row['jawaban'] ?? []) as $idx => $jawab): ?>
-                            <div class="bs-row">
-                                <div class="bs-question">
-                                    <?= ($idx + 1); ?>. <?= h_naskah($jawab['isi_jawaban'] ?? '-'); ?>
-                                </div>
-                                <div class="bs-option">
-                                    ( ) Benar &nbsp;&nbsp;&nbsp; ( ) Salah
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <?php foreach (($row['jawaban'] ?? []) as $idx => $jawab): ?>
-                            <div class="opsi-row">
-                                <div class="opsi-label">
-                                    <?= h_naskah($jawab['label_jawaban'] ?? nomor_label_naskah($idx)); ?>.
-                                </div>
-                                <div class="opsi-text">
-                                    <?= h_naskah($jawab['isi_jawaban'] ?? '-'); ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+    <?php foreach (($row['jawaban'] ?? []) as $idx => $jawab): ?>
+        <div class="bs-row">
+            <div class="bs-question">
+                <?= ($idx + 1); ?>. <?= h_naskah($jawab['isi_jawaban'] ?? '-'); ?>
+            </div>
+            <div class="bs-option">
+                ( ) Benar &nbsp;&nbsp;&nbsp; ( ) Salah
+            </div>
+        </div>
+    <?php endforeach; ?>
+
+<?php elseif ($tipe === 'pg_kompleks'): ?>
+    <?php foreach (($row['jawaban'] ?? []) as $idx => $jawab): ?>
+        <div class="opsi-row opsi-kompleks-row">
+            <span class="checkbox-pdf"></span>
+            <span class="opsi-kompleks-text">
+                <?= h_naskah($jawab['label_jawaban'] ?? nomor_label_naskah($idx)); ?>.
+                <?= h_naskah($jawab['isi_jawaban'] ?? '-'); ?>
+            </span>
+        </div>
+    <?php endforeach; ?>
+
+<?php else: ?>
+    <?php foreach (($row['jawaban'] ?? []) as $idx => $jawab): ?>
+        <div class="opsi-row">
+            <div class="opsi-label">
+                <?= h_naskah($jawab['label_jawaban'] ?? nomor_label_naskah($idx)); ?>.
+            </div>
+            <div class="opsi-text">
+                <?= h_naskah($jawab['isi_jawaban'] ?? '-'); ?>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
                 </div>
             </div>
         </div>
@@ -361,7 +373,29 @@ function render_soal_pdf_naskah($row, $index)
             width: 100%;
             word-wrap: break-word;
         }
+.opsi-kompleks-row {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 5px;
+    line-height: 1.45;
+    page-break-inside: avoid;
+}
 
+.checkbox-pdf {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    border: 1px solid #333;
+    display: inline-block;
+}
+
+.opsi-kompleks-text {
+    display: block;
+    width: 100%;
+    word-wrap: break-word;
+}
         .bs-row {
             margin-bottom: 7px;
             page-break-inside: avoid;
