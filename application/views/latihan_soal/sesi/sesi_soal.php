@@ -196,8 +196,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
             <div class="col-md-3">
                 <select id="filter_status" class="form-control" onchange="loadSesi()">
                     <option value="Semua">Pilih Status</option>
-                    <option value="1">Status: Aktif</option>
-                    <option value="0">Status: Tidak Aktif</option>
+                    <option value="1">Aktif</option>
+                    <option value="0">Tidak Aktif</option>
                 </select>
             </div>
         </div>
