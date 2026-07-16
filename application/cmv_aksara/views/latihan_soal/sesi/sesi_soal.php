@@ -1,8 +1,9 @@
 <?php
 $admin_login = $this->session->userdata('admin');
 $id_level_login = $admin_login['id_level'] ?? '';
-$id_user_login = $admin_login['id'] ?? '';
+$id_user_login = $admin_login['id_user'] ?? '';
 $base_sesi_url = $base_sesi_url ?? base_url('latihan_soal/sesi_soal');
+// var_dump($admin_login);
 ?>
 <?php
 function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login)
@@ -195,8 +196,8 @@ function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login
             <div class="col-md-3">
                 <select id="filter_status" class="form-control" onchange="loadSesi()">
                     <option value="Semua">Pilih Status</option>
-                    <option value="1">Status: Aktif</option>
-                    <option value="0">Status: Tidak Aktif</option>
+                    <option value="1">Aktif</option>
+                    <option value="0">Tidak Aktif</option>
                 </select>
             </div>
         </div>
