@@ -139,15 +139,6 @@ class M_naskah_soal extends CI_Model
             return ['error' => 'Kategori soal tidak ditemukan.'];
         }
 
-        $this->db->where('LOWER(nama_naskah_soal)', strtolower($nama));
-        if ($id > 0) {
-            $this->db->where('id !=', $id);
-        }
-        $cek = $this->db->get('soal_naskah')->row_array();
-        if ($cek) {
-            return ['error' => 'Nama naskah soal sudah digunakan.'];
-        }
-
         return [
             'data' => [
                 'nama_naskah_soal' => $nama,
