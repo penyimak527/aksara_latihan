@@ -1,9 +1,8 @@
 <?php
 $admin_login = $this->session->userdata('admin');
 $id_level_login = $admin_login['id_level'] ?? '';
-$id_user_login = $admin_login['id_user'] ?? '';
+$id_user_login = $admin_login['id'] ?? '';
 $base_sesi_url = $base_sesi_url ?? base_url('latihan_soal/sesi_soal');
-// var_dump($admin_login);
 ?>
 <?php
 function render_sesi_soal_form($mode, $dropdown, $id_level_login, $id_user_login)
