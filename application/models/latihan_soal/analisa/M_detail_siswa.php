@@ -80,14 +80,82 @@ class M_detail_siswa extends CI_Model
 
         return (string) $data;
     }
+    private function label_jawaban_text($id_soal, $json)
+{
+    $json = trim((string) $json);
+
+    if ($json === '') {
+        return '-';
+    }
+
+    $jawaban = json_decode($json, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $jawaban = $json;
+    }
+
+    if ($jawaban === null || $jawaban === '') {
+        return '-';
+    }
+
+    $rows = $this->db->query("
+        SELECT id, label_jawaban, isi_jawaban
+        FROM soal_jawaban
+        WHERE id_soal = ?
+        ORDER BY urutan ASC, id ASC
+    ", [(int) $id_soal])->result_array();
+
+    $map = [];
+    $map_pernyataan = [];
+
+    foreach ($rows as $i => $row) {
+        $id = (string) ($row['id'] ?? '');
+        $label = (string) ($row['label_jawaban'] ?? '');
+        $isi = (string) ($row['isi_jawaban'] ?? '');
+
+        if ($label !== '') {
+            $map[$label] = $label . '. ' . $isi;
+        }
+
+        if ($id !== '') {
+            $map[$id] = ($label !== '' ? $label . '. ' : '') . $isi;
+            $map_pernyataan[$id] = ($i + 1) . '. ' . $isi;
+        }
+    }
+
+    if (is_array($jawaban)) {
+        $out = [];
+
+        foreach ($jawaban as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $v) {
+                    $v = (string) $v;
+                    $out[] = $map[$v] ?? $v;
+                }
+                continue;
+            }
+
+            $key_string = (string) $key;
+            $value_string = (string) $value;
+
+            if ($value_string === 'Benar' || $value_string === 'Salah') {
+                $teks_pernyataan = $map_pernyataan[$key_string] ?? ($map[$key_string] ?? $key_string);
+                $out[] = $teks_pernyataan . ' = ' . $value_string;
+            } else {
+                $out[] = $map[$value_string] ?? $value_string;
+            }
+        }
+
+        return count($out) > 0 ? implode(', ', $out) : '-';
+    }
+
+    $jawaban_string = (string) $jawaban;
+
+    return $map[$jawaban_string] ?? $jawaban_string;
+}
 
     public function page_data($id_siswa = 0, $tahun_ajaran = '', $id_kelas = 0, $id_pengerjaan = 0)
     {
-        // $id_siswa = (int) $id_siswa;
-        // $tahun_ajaran = $this->get_text('tahun_ajaran');
-        // $id_kelas = (int) $this->input->get('id_kelas');
-        // $id_pengerjaan = (int) $this->input->get('id_pengerjaan');
-
         return [
             'id_siswa' => $id_siswa,
             'tahun_ajaran' => $tahun_ajaran,
@@ -345,7 +413,7 @@ class M_detail_siswa extends CI_Model
         }
 
         $tabel_jawaban = $pengerjaan['jenis_pengerjaan'] === 'Rumah' ? 'siswa_jawaban_rumah' : 'siswa_jawaban_bimbel';
-        $this->db->select('j.*, s.nomor_soal, s.pertanyaan, s.gambar_soal, s.pembahasan, m.nama_materi');
+        $this->db->select('j.*, s.nomor_soal, s.pertanyaan, s.gambar_soal, s.pembahasan, s.tipe_soal, m.nama_materi');
         $this->db->from($tabel_jawaban . ' j');
         $this->db->join('soal s', 'j.id_soal = s.id', 'inner');
         $this->db->join('materi m', 's.id_materi = m.id', 'left');
@@ -354,8 +422,8 @@ class M_detail_siswa extends CI_Model
         $rows = $this->db->order_by('CAST(s.nomor_soal AS UNSIGNED)', 'ASC', false)->order_by('s.id', 'ASC')->get()->result_array();
 
         foreach ($rows as $key => $row) {
-            $rows[$key]['jawaban_siswa_text'] = $this->decode_answer($row['jawaban_siswa']);
-            $rows[$key]['jawaban_benar_text'] = $this->decode_answer($row['jawaban_benar']);
+            $rows[$key]['jawaban_siswa_text'] = $this->label_jawaban_text($row['id_soal'], $row['jawaban_siswa']);
+            $rows[$key]['jawaban_benar_text'] = $this->label_jawaban_text($row['id_soal'], $row['jawaban_benar']);
             $rows[$key]['nilai_format'] = rtrim(rtrim(number_format((float) ($row['nilai'] ?? 0), 2, '.', ''), '0'), '.');
         }
 

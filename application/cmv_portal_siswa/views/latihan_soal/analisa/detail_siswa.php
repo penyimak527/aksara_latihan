@@ -426,6 +426,39 @@
 		color: #64748b;
 	}
 
+.preview-answer-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.preview-answer-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	line-height: 1.45;
+	word-break: break-word;
+}
+
+.preview-answer-check {
+	width: 14px;
+	height: 14px;
+	border: 1px solid #64748b;
+	border-radius: 3px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 10px;
+	font-weight: 700;
+	flex: 0 0 14px;
+	margin-top: 1px;
+}
+
+.preview-answer-number {
+	font-weight: 700;
+	color: #475569;
+	flex: 0 0 auto;
+}	
 	@media (max-width: 991px) {
 		.history-list {
 			max-height: none;
@@ -1036,6 +1069,83 @@
 		}
 	}
 
+	function splitJawabanPreview(text) {
+	text = String(text || '').trim();
+
+	if (text === '' || text === '-') {
+		return [];
+	}
+
+	return text.split(',').map(function (item) {
+		return item.trim();
+	}).filter(function (item) {
+		return item !== '';
+	});
+}
+
+function renderPgKompleksText(text) {
+	let items = splitJawabanPreview(text);
+
+	if (items.length === 0) {
+		return '-';
+	}
+
+	let html = '<div class="preview-answer-list">';
+
+	items.forEach(function (item) {
+		html += `
+			<div class="preview-answer-item">
+				<span class="preview-answer-check">✓</span>
+				<span>${escapeHtml(item)}</span>
+			</div>
+		`;
+	});
+
+	html += '</div>';
+
+	return html;
+}
+
+function renderBenarSalahText(text) {
+	let items = splitJawabanPreview(text);
+
+	if (items.length === 0) {
+		return '-';
+	}
+
+	let html = '<div class="preview-answer-list">';
+
+	items.forEach(function (item, index) {
+		// <span class="preview-answer-number">${index + 1}.</span>
+		html += `
+			<div class="preview-answer-item">
+				<span>${escapeHtml(item)}</span>
+			</div>
+		`;
+	});
+
+	html += '</div>';
+
+	return html;
+}
+
+function renderJawabanByTipe(row, jenis) {
+	let tipe = row.tipe_soal || '';
+	let text = jenis === 'kunci'
+		? (row.jawaban_benar_text || '-')
+		: (row.jawaban_siswa_text || '-');
+
+	if (tipe === 'pg_kompleks') {
+		return renderPgKompleksText(text);
+	}
+
+	if (tipe === 'benar_salah') {
+		return renderBenarSalahText(text);
+	}
+
+	return escapeHtml(text);
+}
+
 	function renderPreview(rows) {
 		let html = '';
 		let totalNilai = getTotalNilaiPreview(rows);
@@ -1054,60 +1164,58 @@
 				}
 
 				let gambar = gambarUrl ? `
-	<div class="mb-2">
-		<div class="text-muted fw-bold" style="font-size:11px;">Gambar Soal</div>
-		<img src="${escapeHtml(gambarUrl)}" class="img-fluid rounded border" style="max-height:160px;">
-	</div>
-` : '';
+				<div class="mb-2">
+					<div class="text-muted fw-bold" style="font-size:11px;">Gambar Soal</div>
+					<img src="${escapeHtml(gambarUrl)}" class="img-fluid rounded border" style="max-height:160px;">
+				</div>` : '';
 
 				let statusInfo = statusJawabanBadge(row.status_jawaban);
 				let nomor = row.nomor_soal || (index + 1);
 
 				html += `
-	<div class="border rounded mb-2 bg-white">
-		<div class="d-flex align-items-center justify-content-between gap-2 px-2 py-2 border-bottom bg-light">
-			<div class="min-w-0">
-				<div class="fw-bold small mb-0">Soal ${escapeHtml(nomor)}</div>
-				<div class="text-muted" style="font-size:11px;">Materi: ${escapeHtml(row.nama_materi || '-')}</div>
-			</div>
-			<span class="${statusInfo.className}">${escapeHtml(statusInfo.text)}</span>
-		</div>
+					<div class="border rounded mb-2 bg-white">
+						<div class="d-flex align-items-center justify-content-between gap-2 px-2 py-2 border-bottom bg-light">
+							<div class="min-w-0">
+								<div class="fw-bold small mb-0">Soal ${escapeHtml(nomor)}</div>
+								<div class="text-muted" style="font-size:11px;">Materi: ${escapeHtml(row.nama_materi || '-')}</div>
+							</div>
+							<span class="${statusInfo.className}">${escapeHtml(statusInfo.text)}</span>
+						</div>
 
-		<div class="p-2">
-			<div class="mb-2">
-				<div class="text-muted fw-bold" style="font-size:11px;">Pertanyaan</div>
-				<div class="small">${escapeHtml(row.pertanyaan || '-')}</div>
-			</div>
+						<div class="p-2">
+							<div class="mb-2">
+								<div class="text-muted fw-bold" style="font-size:11px;">Pertanyaan</div>
+								<div class="small">${escapeHtml(row.pertanyaan || '-')}</div>
+							</div>
 
-			${gambar}
+							${gambar}
 
-			<div class="table-responsive">
-				<table class="table table-sm table-bordered align-middle mb-2" style="font-size:12px;">
-					<tbody>
-						<tr>
-							<th class="bg-light py-1" style="width:120px;">Jawaban Siswa</th>
-							<td class="py-1">${escapeHtml(row.jawaban_siswa_text || '-')}</td>
-						</tr>
-						<tr>
-							<th class="bg-light py-1">Kunci Jawaban</th>
-							<td class="py-1">${escapeHtml(row.jawaban_benar_text || '-')}</td>
-						</tr>
-						${row.pembahasan ? `
-							<tr>
-								<th class="bg-light py-1">Pembahasan</th>
-								<td class="py-1 preview-pembahasan">${sanitizePembahasanHtml(row.pembahasan)}</td>
-							</tr>
-						` : ''}
-					</tbody>
-				</table>
-			</div>
+							<div class="table-responsive">
+								<table class="table table-sm table-bordered align-middle mb-2" style="font-size:12px;">
+									<tbody>
+										<tr>
+											<th class="bg-light py-1" style="width:120px;">Jawaban Siswa</th>
+											<td class="py-1">${renderJawabanByTipe(row, 'siswa')}</td>
+										</tr>
+										<tr>
+											<th class="bg-light py-1">Kunci Jawaban</th>
+											<td class="py-1">${renderJawabanByTipe(row, 'kunci')}</td>
+										</tr>
+										${row.pembahasan ? `
+											<tr>
+												<th class="bg-light py-1">Pembahasan</th>
+												<td class="py-1 preview-pembahasan">${sanitizePembahasanHtml(row.pembahasan)}</td>
+											</tr>
+										` : ''}
+									</tbody>
+								</table>
+							</div>
 
-			<div class="d-flex align-items-center justify-content-between gap-2 small">
-				<div class="fw-bold text-success">Nilai: ${escapeHtml(row.nilai_format || '-')}</div>
-			</div>
-		</div>
-	</div>
-`;
+							<div class="d-flex align-items-center justify-content-between gap-2 small">
+								<div class="fw-bold text-success">Nilai: ${escapeHtml(row.nilai_format || '-')}</div>
+							</div>
+						</div>
+					</div>`;
 			});
 		}
 
