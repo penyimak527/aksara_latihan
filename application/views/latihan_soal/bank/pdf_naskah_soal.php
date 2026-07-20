@@ -229,7 +229,15 @@ function render_kop_pdf_naskah()
     </div>
     <?php
 }
-?>
+
+function render_watermark_pdf_naskah()
+{
+    $watermark = function_exists('base_url') ? base_url('assets/aksara.png') : 'assets/aksara.png';
+    ?>
+    <div class="watermark-pdf">
+        <img src="<?= h_naskah($watermark); ?>" alt="Watermark Aksara">
+    </div>
+    <?php }?>
 <!DOCTYPE html>
 <html>
 
@@ -248,11 +256,6 @@ function render_kop_pdf_naskah()
             background: #fff;
             font-size: 12px;
             line-height: 1.45;
-        }
-
-        .page {
-            width: 100%;
-            background: #fff;
         }
 
         .page-lanjutan {
@@ -511,10 +514,43 @@ function render_kop_pdf_naskah()
             size: A4;
             margin: 14mm;
         }
+        .watermark-pdf {
+    position: fixed;
+    top: 95mm;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 0;
+    opacity: 0.08;
+}
+
+.watermark-pdf img {
+    width: 115mm;
+    max-width: 115mm;
+    height: auto;
+    display: inline-block;
+}
+
+.page {
+    position: relative;
+    width: 100%;
+    background: transparent;
+    z-index: 1;
+}
+
+.kop-surat,
+.meta,
+.soal-columns,
+.title,
+.page p {
+    position: relative;
+    z-index: 2;
+}
     </style>
 </head>
 
 <body>
+    <?php render_watermark_pdf_naskah(); ?>
     <?php if (empty($soal)): ?>
         <div class="page">
             <?php render_kop_pdf_naskah(); ?>
