@@ -205,7 +205,39 @@ function render_soal_pdf_naskah($row, $index)
     </div>
     <?php
 }
-?>
+
+function render_kop_pdf_naskah()
+{
+    $logo_aksara = function_exists('base_url') ? base_url('assets/aksara_edited.png') : 'assets/aksara_edited.png';
+    ?>
+    <div class="kop-surat">
+        <table class="kop-table">
+            <tr>
+                <td class="kop-logo-cell">
+                    <img src="<?= h_naskah($logo_aksara); ?>" class="kop-logo" alt="Logo Aksara">
+                </td>
+                <td class="kop-info-cell">
+                    <div class="kop-title">LEMBAGA BIMBINGAN BELAJAR</div>
+                    <div class="kop-name">“AKSARA COURSE LUMAJANG”</div>
+                    <div class="kop-address">Alamat : Jl. Kapten Piere Tendean No 23, Lumajang.</div>
+                    <div class="kop-contact">CP : 088-989-546-500. Email: <a href="mailto:aksaracourselumajang@gmail.com" style="color: #1155cc;">aksaracourselumajang@gmail.com</a>.</div>
+                    <div class="kop-instagram">Akun Instagram : @aksara.course</div>
+                </td>
+            </tr>
+        </table>
+        <div class="kop-line"></div>
+    </div>
+    <?php
+}
+
+function render_watermark_pdf_naskah()
+{
+    $watermark = function_exists('base_url') ? base_url('assets/aksara.png') : 'assets/aksara.png';
+    ?>
+    <div class="watermark-pdf">
+        <img src="<?= h_naskah($watermark); ?>" alt="Watermark Aksara">
+    </div>
+    <?php }?>
 <!DOCTYPE html>
 <html>
 
@@ -226,15 +258,82 @@ function render_soal_pdf_naskah($row, $index)
             line-height: 1.45;
         }
 
-        .page {
-            width: 100%;
-            background: #fff;
-        }
-
         .page-lanjutan {
             padding-top: 2mm;
         }
+     .kop-surat {
+    width: 100%;
+    margin: 0 0 9px 0;
+    padding: 0;
+    text-align: center;
+    overflow: hidden;
+}
 
+.kop-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.kop-table td {
+    padding: 0;
+    vertical-align: middle;
+}
+
+.kop-logo-cell {
+    width: 42%;
+    text-align: center;
+}
+
+.kop-info-cell {
+    width: 58%;
+    text-align: center;
+    font-family: "Times New Roman", Times, serif;
+    color: #000;
+    font-weight: bold;
+    line-height: 1.08;
+    padding-left: 2mm;
+}
+
+.kop-logo {
+    width: 64mm;
+    max-width: 64mm;
+    height: auto;
+    display: inline-block;
+}
+
+.kop-title {
+    font-size: 17px;
+    line-height: 1.05;
+    margin: 0;
+    padding: 0;
+}
+
+.kop-name {
+    font-size: 16px;
+    line-height: 1.05;
+    margin: 0;
+    padding: 0;
+}
+
+.kop-address,
+.kop-contact,
+.kop-instagram {
+    font-size: 12.5px;
+    line-height: 1.05;
+    margin: 0;
+    padding: 0;
+}
+
+
+.kop-line {
+    width: 100%;
+    margin: 6px 0 0 0;
+    height: 4px;
+    border-top: 3px double #000;
+    border-bottom: 1px solid #000;
+}
         .kop {
             border: 1.5px solid #111;
             padding: 10px 12px;
@@ -279,7 +378,7 @@ function render_soal_pdf_naskah($row, $index)
         .soal-columns {
             position: relative;
             width: 100%;
-            height: 198mm;
+            height: 190mm;
             clear: both;
         }
 
@@ -415,20 +514,46 @@ function render_soal_pdf_naskah($row, $index)
             size: A4;
             margin: 14mm;
         }
+        .watermark-pdf {
+    position: fixed;
+    top: 95mm;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 0;
+    opacity: 0.08;
+}
+
+.watermark-pdf img {
+    width: 115mm;
+    max-width: 115mm;
+    height: auto;
+    display: inline-block;
+}
+
+.page {
+    position: relative;
+    width: 100%;
+    background: transparent;
+    z-index: 1;
+}
+
+.kop-surat,
+.meta,
+.soal-columns,
+.title,
+.page p {
+    position: relative;
+    z-index: 2;
+}
     </style>
 </head>
 
 <body>
+    <?php render_watermark_pdf_naskah(); ?>
     <?php if (empty($soal)): ?>
         <div class="page">
-            <div class="kop">
-                <h1>KOP BIMBEL AKSARA</h1>
-                <p>Alamat:
-                    ....................................................................................................................
-                </p>
-                <p>Telepon: ........................................ &nbsp; Email:
-                    ....................................................</p>
-            </div>
+            <?php render_kop_pdf_naskah(); ?>
 
             <div class="title">
                 <h2>NASKAH SOAL</h2>
@@ -450,14 +575,7 @@ function render_soal_pdf_naskah($row, $index)
 
             <div class="page <?= $page_index > 0 ? 'page-lanjutan' : ''; ?>" style="<?= $style_page_break; ?>">
                 <?php if ($page_index == 0): ?>
-                    <div class="kop">
-                        <h1>KOP BIMBEL AKSARA</h1>
-                        <p>Alamat:
-                            ....................................................................................................................
-                        </p>
-                        <p>Telepon: ........................................ &nbsp; Email:
-                            ....................................................</p>
-                    </div>
+                    <?php render_kop_pdf_naskah(); ?>
                     <!-- 
                     <div class="title">
                         <h2>NASKAH SOAL</h2>

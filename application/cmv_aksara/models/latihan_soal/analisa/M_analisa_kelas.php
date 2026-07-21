@@ -53,8 +53,6 @@ class M_analisa_kelas extends CI_Model
     {
         $jenis = $this->jenis_normalize($jenis);
 
-        // Sumber jenis pengerjaan yang benar ada pada header siswa_pengerjaan.
-        // soal_sesi tetap tidak memiliki jenis pengerjaan, sedangkan tabel jawaban hanya untuk detail jawaban/nilai per soal.
         if ($jenis === 'Semua') {
             return $alias . ".jenis_pengerjaan IN ('Bimbel', 'Rumah')";
         }
@@ -180,9 +178,6 @@ class M_analisa_kelas extends CI_Model
             if ($filter['id_mata_pelajaran'] !== '' && $filter['id_mata_pelajaran'] !== 'Semua') {
                 $this->db->where('a.id_mata_pelajaran', (int) $filter['id_mata_pelajaran']);
             }
-
-            // Tidak ada filter jenis pengerjaan di soal_sesi.
-            // Jenis Bimbel/Rumah dipakai saat membaca hasil/jawaban siswa.
 
             if ($filter['id_kategori_soal'] !== '' && $filter['id_kategori_soal'] !== 'Semua') {
                 $this->db->where('a.id_kategori_soal', (int) $filter['id_kategori_soal']);

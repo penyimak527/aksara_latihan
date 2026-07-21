@@ -156,11 +156,6 @@ class M_detail_siswa extends CI_Model
 
     public function page_data($id_siswa = 0, $tahun_ajaran = '', $id_kelas = 0, $id_pengerjaan = 0)
     {
-        // $id_siswa = (int) $id_siswa;
-        // $tahun_ajaran = $this->get_text('tahun_ajaran');
-        // $id_kelas = (int) $this->input->get('id_kelas');
-        // $id_pengerjaan = (int) $this->input->get('id_pengerjaan');
-
         return [
             'id_siswa' => $id_siswa,
             'tahun_ajaran' => $tahun_ajaran,
@@ -427,8 +422,6 @@ class M_detail_siswa extends CI_Model
         $rows = $this->db->order_by('CAST(s.nomor_soal AS UNSIGNED)', 'ASC', false)->order_by('s.id', 'ASC')->get()->result_array();
 
         foreach ($rows as $key => $row) {
-            // $rows[$key]['jawaban_siswa_text'] = $this->decode_answer($row['jawaban_siswa']);
-            // $rows[$key]['jawaban_benar_text'] = $this->decode_answer($row['jawaban_benar']);
             $rows[$key]['jawaban_siswa_text'] = $this->label_jawaban_text($row['id_soal'], $row['jawaban_siswa']);
             $rows[$key]['jawaban_benar_text'] = $this->label_jawaban_text($row['id_soal'], $row['jawaban_benar']);
             $rows[$key]['nilai_format'] = rtrim(rtrim(number_format((float) ($row['nilai'] ?? 0), 2, '.', ''), '0'), '.');

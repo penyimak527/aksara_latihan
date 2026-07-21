@@ -181,9 +181,6 @@ class M_analisa_kelas extends CI_Model
                 $this->db->where('a.id_mata_pelajaran', (int) $filter['id_mata_pelajaran']);
             }
 
-            // Tidak ada filter jenis pengerjaan di soal_sesi.
-            // Jenis Bimbel/Rumah dipakai saat membaca hasil/jawaban siswa.
-
             if ($filter['id_kategori_soal'] !== '' && $filter['id_kategori_soal'] !== 'Semua') {
                 $this->db->where('a.id_kategori_soal', (int) $filter['id_kategori_soal']);
             }

@@ -1116,7 +1116,7 @@ function renderBenarSalahText(text) {
 	let html = '<div class="preview-answer-list">';
 
 	items.forEach(function (item, index) {
-		// <span class="preview-answer-number">${index + 1}.</span>
+
 		html += `
 			<div class="preview-answer-item">
 				<span>${escapeHtml(item)}</span>
