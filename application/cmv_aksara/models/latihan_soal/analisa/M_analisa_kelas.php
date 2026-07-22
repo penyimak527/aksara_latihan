@@ -53,6 +53,8 @@ class M_analisa_kelas extends CI_Model
     {
         $jenis = $this->jenis_normalize($jenis);
 
+        // Sumber jenis pengerjaan yang benar ada pada header siswa_pengerjaan.
+        // soal_sesi tetap tidak memiliki jenis pengerjaan, sedangkan tabel jawaban hanya untuk detail jawaban/nilai per soal.
         if ($jenis === 'Semua') {
             return $alias . ".jenis_pengerjaan IN ('Bimbel', 'Rumah')";
         }

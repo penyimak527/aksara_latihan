@@ -20,12 +20,36 @@ class Laporan extends CI_Controller
 		$data['beasiswa'] = $this->db->get('beasiswa')->result_array();
 		$data['siswa'] = $this->db->get('siswa')->result_array();
 		$data['pegawai'] = $this->db->get('pegawai')->result_array();
+		$data['tahun_ajaran_options'] = $this->tahun_ajaran_options();
+		// $data['mapel_options'] = $this->db->get_where('mata_pelajaran', ['status_aktif' => '1'])->result_array()->order_by('nama_mata_pelajaran', 'ASC');
 		$data['view'] = $this;
 		$this->load->view('template/header', $data);
 		$this->load->view('admin/laporan', $data);
 		$this->load->view('template/footer');
 	}
 
+	private function tahun_ajaran_options()
+{
+    $options = [];
+
+    $tahun_minimum = 2025;
+    $tahun_sekarang = (int) date('Y');
+    $bulan_sekarang = (int) date('m');
+
+    // Januari-Juni masih termasuk tahun ajaran sebelumnya.
+    $tahun_awal_aktif = $bulan_sekarang >= 7
+        ? $tahun_sekarang
+        : $tahun_sekarang - 1;
+
+    // Tampilkan sampai 3 tahun ajaran setelah tahun ajaran aktif.
+    $tahun_akhir = $tahun_awal_aktif + 3;
+
+    for ($tahun = $tahun_minimum; $tahun <= $tahun_akhir; $tahun++) {
+        $options[] = $tahun . '/' . ($tahun + 1);
+    }
+
+    return $options;
+}
 
 	public function laporan_result()
 	{

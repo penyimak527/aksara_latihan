@@ -199,6 +199,53 @@
 							</div>
 						</div>
 					</div>
+					<div id="form-tahun-ajaran" class="row mb-2">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="mb-1">Tahun Ajaran</label>
+								 <select class="form-control" data-width="100%" name="single_filter_tahun_ajaran" >
+                <?php foreach ($tahun_ajaran_options as $tahun_ajaran) { ?>
+                    <option value="<?php echo html_escape($tahun_ajaran); ?>">
+                        <?php echo html_escape($tahun_ajaran); ?>
+                    </option>
+                <?php } ?>
+            </select>
+							</div>
+						</div>
+					</div>
+					<div id="form-kelas-tahun-ajaran" class="row mb-2">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="mb-1">Kelas</label>
+								<select name="id_kelas" class="form-control">
+									<option value="semua">Pilih Kelas</option>
+									<?php
+									foreach ($kelas as $j): ?>
+										?>
+										<option value="<?php echo $j['id']; ?>">
+											<?php echo $j['nama_kelas']; ?>
+										</option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+						</div>
+					</div>
+					<!-- <div id="form-mapel" class="row mb-2">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="mb-1">Mapel</label>
+								<select name="id_mapel" class="form-control">
+									<option value="semua">Pilih Mapel</option>
+									<php
+									foreach ($mapel_options as $mapel): ?>
+										<option value="<php echo $j['id']; ?>">
+											<php echo $j['nama_mata_pelajaran']; ?>
+										</option>
+									<php endforeach; ?>
+								</select>
+							</div>
+						</div>
+					</div> -->
 					<div id="form-spp-bulanan" class="row g-2 mb-4" style="display: none;">
 						<div class="col-md-12">
 							<div class="form-group">
@@ -545,6 +592,20 @@
 			$('#paket').hide();
 			$('#form-tahun').hide();
 			$('#btn_print_laporan_excel').show();
+			$('#form-siswa').hide();
+		}else if (nama == 'Laporan Perkembangan Belajar') {
+			$('#filter-data').hide();
+			$('#form-hari').hide();
+			$('#form-pegawai').hide();
+			$('#form-bulan').hide();
+			$('#form-spp-bulanan').hide();
+			$('#beasiswa').hide();
+			$('#paket').hide();
+			$('#form-tahun-ajaran').show();
+			$('#form-kelas-tahun-ajaran').show();
+			$('#form-mapel').show();
+			$('#form-tahun').hide();
+			$('#btn_print_laporan_excel').hide();
 			$('#form-siswa').hide();
 		} else {
 			$('#form-laporan-presensi-siswa').hide();
