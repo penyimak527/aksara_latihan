@@ -21,7 +21,7 @@ class Laporan extends CI_Controller
 		$data['siswa'] = $this->db->get('siswa')->result_array();
 		$data['pegawai'] = $this->db->get('pegawai')->result_array();
 		$data['tahun_ajaran_options'] = $this->tahun_ajaran_options();
-		// $data['mapel_options'] = $this->db->get_where('mata_pelajaran', ['status_aktif' => '1'])->result_array()->order_by('nama_mata_pelajaran', 'ASC');
+		$data['mapel_options'] = $this->db->query("SELECT * FROM mata_pelajaran WHERE status_aktif = '1' ORDER BY nama_mata_pelajaran ASC")->result_array();
 		$data['view'] = $this;
 		$this->load->view('template/header', $data);
 		$this->load->view('admin/laporan', $data);
@@ -70,6 +70,52 @@ class Laporan extends CI_Controller
 		echo json_encode($data);
 	}
 
+	public function siswa_by_kelas()
+	{
+		$admin = $this->session->userdata('admin');
+
+		if (empty($admin) || empty($admin['username'])) {
+			$this->output
+				->set_status_header(401)
+				->set_content_type('application/json', 'utf-8')
+				->set_output(json_encode([
+					'result' => 'false',
+					'message' => 'Sesi admin tidak ditemukan.',
+					'data' => []
+				]));
+			return;
+		}
+
+		$id_kelas = (int) $this->input->post('id_kelas', true);
+
+		if ($id_kelas <= 0) {
+			$this->output
+				->set_content_type('application/json', 'utf-8')
+				->set_output(json_encode([
+					'result' => 'false',
+					'message' => 'Kelas wajib dipilih.',
+					'data' => []
+				]));
+			return;
+		}
+
+		// Query parameter binding mencegah nilai id_kelas dimasukkan langsung ke SQL.
+		$siswa = $this->db->query("SELECT
+				id,
+				nama_siswa,
+				nis,
+				id_kelas
+			FROM siswa
+			WHERE id_kelas = ? AND status_aktif = '1'
+			ORDER BY id DESC", [$id_kelas])->result_array();
+
+		$this->output
+			->set_content_type('application/json', 'utf-8')
+			->set_output(json_encode([
+				'result' => 'true',
+				'data' => $siswa
+			]));
+	}
 
 }
 ?>
