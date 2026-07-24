@@ -49,6 +49,14 @@
         .signature-space { height: 54px; }
         .signature-line { display: inline-block; min-width: 165px; padding-top: 2px; border-top: 1px solid #000; }
         .empty { text-align: center; padding: 12px; }
+        .empty-report {
+            margin-top: 24px;
+            padding: 18px 12px;
+            border: 1px solid #000;
+            text-align: center;
+            font-size: 11px;
+            font-weight: normal;
+        }
         @media print {
             .no-print { display: none !important; }
         }
@@ -88,6 +96,12 @@
 </table>
 
 <div class="kop-line"></div>
+
+<?php if (empty($data_tersedia)): ?>
+    <div class="empty-report">
+        <?php echo htmlspecialchars($pesan_kosong ?? 'Tidak ada data.', ENT_QUOTES, 'UTF-8'); ?>
+    </div>
+<?php else: ?>
 
 <div class="section">
     <div class="section-title">IDENTITAS SISWA</div>
@@ -280,6 +294,8 @@
         <td><span class="signature-line">( Nama Terang )</span></td>
     </tr>
 </table>
+
+<?php endif; ?>
 
 <script>
         window.print();

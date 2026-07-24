@@ -23,59 +23,123 @@ class Laporan_perkembangan_belajar extends CI_Controller
             $ambil = [];
         }
 
-        $tahun_ajaran = trim((string) ($ambil['single_filter_tahun_ajaran'] ?? ''));
-        $id_kelas = (int) ($ambil['id_kelas_perkembangan'] ?? 0);
         $id_siswa = (int) ($ambil['id_siswa_perkembangan'] ?? 0);
+        $id_kelas = (int) ($ambil['id_kelas_perkembangan'] ?? 0);
+        $semester = ucfirst(strtolower(trim((string) ($ambil['semester_perkembangan'] ?? ''))));
         $id_mapel_input = $ambil['id_mapel_perkembangan'] ?? 'semua';
-        $id_mapel = ($id_mapel_input === '' || $id_mapel_input === 'semua')
-            ? 0
-            : (int) $id_mapel_input;
+        $id_mapel = ($id_mapel_input === '' || $id_mapel_input === 'semua') ? 0 : (int) $id_mapel_input;
 
-        if ($tahun_ajaran === '' || $id_kelas <= 0 || $id_siswa <= 0) {
-            show_error(
-                'Tahun ajaran, kelas, dan nama siswa wajib dipilih.',
-                400,
-                'Filter Laporan Tidak Lengkap'
-            );
-            return;
-        }
+        $tahun_ajaran = '';
 
-       $siswa = $this->db->query(
-    "SELECT
-        s.id,
-        s.nis,
-        s.nama_siswa,
-        ps.id_kelas,
-        k.nama_kelas,
-        j.nama_jenjang
-    FROM siswa s
-    INNER JOIN siswa_pengerjaan ps
-        ON ps.id_siswa = s.id
-    INNER JOIN kelas k
-        ON k.id = ps.id_kelas
-    LEFT JOIN jenjang j
-        ON j.id = k.id_jenjang
-    WHERE s.id = ?
-      AND ps.id_kelas = ?
-      AND ps.tahun_ajaran = ?
-    LIMIT 1",
-    [
-        $id_siswa,
-        $id_kelas,
-        $tahun_ajaran
-    ]
-)->row_array();
-        if (empty($siswa)) {
-            show_error(
-                'Data siswa tidak ditemukan atau tidak sesuai dengan kelas yang dipilih.',
-                404,
-                'Data Siswa Tidak Ditemukan'
+        /*
+         * Data default untuk laporan kosong.
+         * Controller tetap mengembalikan view print dengan status HTTP 200,
+         * sehingga pesan dapat dilihat oleh admin.
+         */
+        $data_kosong = [
+            'data_tersedia' => false,
+            'pesan_kosong' => 'Tidak ada data.',
+            'siswa' => [],
+            'ringkasan' => [],
+            'perkembangan_mapel' => [],
+            'perkembangan_materi' => [],
+            'grafik_bulan' => [],
+            'tahun_ajaran' => '-',
+            'semester' => in_array($semester, ['Ganjil', 'Genap'], true) ? $semester : '-',
+            'tanggal_cetak' => $this->tanggal_indonesia(date('Y-m-d'))
+        ];
+
+        if (
+            $id_siswa <= 0 ||
+            $id_kelas <= 0 ||
+            !in_array($semester, ['Ganjil', 'Genap'], true)
+        ) {
+            $this->load->view(
+                'admin/data_laporan/laporan_perkembangan_belajar',
+                $data_kosong
             );
             return;
         }
 
         $tanggal_sql = "STR_TO_DATE(ps.waktu_selesai, '%d-%m-%Y %H:%i:%s')";
         $nilai_sql = "CAST(NULLIF(ps.nilai_akhir, '') AS DECIMAL(10,2))";
+
+        /*
+         * Tahun ajaran tidak lagi dipilih dari filter.
+         * Sistem mengambil tahun ajaran terakhir dari pengerjaan siswa
+         * pada kelas yang dipilih.
+         */
+        $periode = $this->db->query(
+            "SELECT ps.tahun_ajaran
+            FROM siswa_pengerjaan ps
+            WHERE ps.id_siswa = ?
+              AND ps.id_kelas = ?
+              AND ps.tahun_ajaran IS NOT NULL
+              AND ps.tahun_ajaran != ''
+              AND ps.status_pengerjaan IN (
+                    'Selesai',
+                    'Waktu Habis',
+                    'Selesai karena timer habis'
+              )
+              AND {$tanggal_sql} IS NOT NULL
+              AND {$nilai_sql} IS NOT NULL
+            ORDER BY {$tanggal_sql} DESC, ps.id DESC
+            LIMIT 1",
+            [$id_siswa, $id_kelas]
+        )->row_array();
+
+        $tahun_ajaran = trim((string) ($periode['tahun_ajaran'] ?? ''));
+
+        if ($tahun_ajaran === '') {
+            $this->load->view(
+                'admin/data_laporan/laporan_perkembangan_belajar',
+                $data_kosong
+            );
+            return;
+        }
+
+        $bagian_tahun = explode('/', $tahun_ajaran);
+        $tahun_awal = (int) ($bagian_tahun[0] ?? 0);
+        $tahun_akhir = (int) ($bagian_tahun[1] ?? 0);
+
+        if ($tahun_awal <= 0 || $tahun_akhir <= 0) {
+            $this->load->view(
+                'admin/data_laporan/laporan_perkembangan_belajar',
+                $data_kosong
+            );
+            return;
+        }
+
+        $data_kosong['tahun_ajaran'] = $tahun_ajaran;
+
+        /*
+         * Data siswa diambil berdasarkan siswa yang dipilih.
+         * Nama kelas diambil dari master kelas yang dipilih,
+         * bukan dari kelas siswa saat ini.
+         */
+        $siswa = $this->db->query(
+            "SELECT
+                s.id,
+                s.nis,
+                s.nama_siswa,
+                k.id AS id_kelas,
+                k.nama_kelas,
+                j.nama_jenjang
+            FROM siswa s
+            INNER JOIN kelas k ON k.id = ?
+            LEFT JOIN jenjang j ON j.id = k.id_jenjang
+            WHERE s.id = ?
+            LIMIT 1",
+            [$id_kelas, $id_siswa]
+        )->row_array();
+
+        if (empty($siswa)) {
+            $this->load->view(
+                'admin/data_laporan/laporan_perkembangan_belajar',
+                $data_kosong
+            );
+            return;
+        }
 
         $where = [
             'ps.id_siswa = ?',
@@ -87,6 +151,16 @@ class Laporan_perkembangan_belajar extends CI_Controller
         ];
 
         $params = [$id_siswa, $tahun_ajaran, $id_kelas];
+
+        if ($semester === 'Ganjil') {
+            $where[] = "YEAR({$tanggal_sql}) = ?";
+            $where[] = "MONTH({$tanggal_sql}) BETWEEN 7 AND 12";
+            $params[] = $tahun_awal;
+        } else {
+            $where[] = "YEAR({$tanggal_sql}) = ?";
+            $where[] = "MONTH({$tanggal_sql}) BETWEEN 1 AND 6";
+            $params[] = $tahun_akhir;
+        }
 
         if ($id_mapel > 0) {
             $where[] = 'ss.id_mata_pelajaran = ?';
@@ -113,10 +187,9 @@ class Laporan_perkembangan_belajar extends CI_Controller
         )->result_array();
 
         if (empty($pengerjaan)) {
-            show_error(
-                'Belum ada data perkembangan untuk filter yang dipilih.',
-                404,
-                'Laporan Tidak Tersedia'
+            $this->load->view(
+                'admin/data_laporan/laporan_perkembangan_belajar',
+                $data_kosong
             );
             return;
         }
@@ -271,13 +344,15 @@ class Laporan_perkembangan_belajar extends CI_Controller
         ];
 
         $data = [
+            'data_tersedia' => true,
+            'pesan_kosong' => '',
             'siswa' => $siswa,
             'ringkasan' => $ringkasan,
             'perkembangan_mapel' => $perkembangan_mapel,
             'perkembangan_materi' => $perkembangan_materi,
             'grafik_bulan' => $grafik_bulan,
             'tahun_ajaran' => $tahun_ajaran,
-            'semester' => $this->semester_laporan($grafik_bulan),
+            'semester' => $semester,
             'tanggal_cetak' => $this->tanggal_indonesia(date('Y-m-d'))
         ];
 
