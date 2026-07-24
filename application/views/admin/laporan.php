@@ -223,13 +223,8 @@
 						<div class="col-md-12">
 							<div class="form-group">
 								<label class="mb-1">Kelas</label>
-								<select name="id_kelas_perkembangan" id="id-kelas-perkembangan" class="form-control">
-									<option value="">Pilih Kelas</option>
-									<?php foreach ($kelas as $j): ?>
-										<option value="<?php echo $j['id']; ?>">
-											<?php echo $j['nama_kelas']; ?>
-										</option>
-									<?php endforeach; ?>
+								<select name="id_kelas_perkembangan" id="id-kelas-perkembangan" class="form-control" disabled>
+									<option value="">Pilih siswa terlebih dahulu</option>
 								</select>
 							</div>
 						</div>
@@ -512,12 +507,68 @@
 					var idSiswa = mapIdSiswa[text] || '';
 
 					$('#id-siswa-perkembangan').val(idSiswa);
+					kelas_perkembangan_by_siswa(idSiswa);
 				}).on('focus', function () {
 					$(this).autocomplete('search', '');
 				}).on('input', function () {
 					var text = $(this).val();
-					$('#id-siswa-perkembangan').val(mapIdSiswa[text] || '');
+					var idSiswa = mapIdSiswa[text] || '';
+
+					$('#id-siswa-perkembangan').val(idSiswa);
+					$('#id-kelas-perkembangan')
+						.prop('disabled', true)
+						.html('<option value="">Pilih siswa terlebih dahulu</option>');
 				});
+			}
+		});
+	}
+
+
+	function kelas_perkembangan_by_siswa(idSiswa) {
+		var $kelas = $('#id-kelas-perkembangan');
+
+		$kelas
+			.prop('disabled', true)
+			.html('<option value="">Memuat data kelas...</option>');
+
+		if (!idSiswa) {
+			$kelas.html('<option value="">Pilih siswa terlebih dahulu</option>');
+			return;
+		}
+
+		$.ajax({
+			url: '<?= base_url('admin/laporan/kelas_riwayat_by_siswa'); ?>',
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				id_siswa: idSiswa
+			},
+			success: function (response) {
+				var daftarKelas = response.data || [];
+				var options = '<option value="">Pilih Kelas</option>';
+
+				if (response.result === 'true' && daftarKelas.length > 0) {
+					daftarKelas.forEach(function (item) {
+						var namaJenjang = (item.nama_jenjang || '').toString();
+						var namaKelas = (item.nama_kelas || '').toString();
+						var label = $.trim(namaJenjang + ' ' + namaKelas);
+
+						options += '<option value="' + item.id_kelas + '">' +
+							$('<div>').text(label || '-').html() +
+						'</option>';
+					});
+
+					$kelas.html(options).prop('disabled', false).val('');
+				} else {
+					$kelas
+						.html('<option value="">Siswa belum memiliki riwayat kelas pengerjaan</option>')
+						.prop('disabled', true);
+				}
+			},
+			error: function () {
+				$kelas
+					.html('<option value="">Data kelas gagal dimuat</option>')
+					.prop('disabled', true);
 			}
 		});
 	}
@@ -693,7 +744,7 @@
 			// Reset hanya filter Laporan Perkembangan Belajar.
 			$('#nama-siswa-perkembangan').val('');
 			$('#id-siswa-perkembangan').val('');
-			$('#id-kelas-perkembangan').val('');
+			$('#id-kelas-perkembangan').prop('disabled', true).html('<option value="">Pilih siswa terlebih dahulu</option>');
 			$('#semester-perkembangan').val('');
 			$('#id-mapel-perkembangan').val('semua');
 			$('#form-tahun').hide();
