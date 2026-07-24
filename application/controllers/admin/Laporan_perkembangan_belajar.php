@@ -40,23 +40,31 @@ class Laporan_perkembangan_belajar extends CI_Controller
             return;
         }
 
-        $siswa = $this->db->query(
-            "SELECT
-                s.id,
-                s.nis,
-                s.nama_siswa,
-                s.id_kelas,
-                k.nama_kelas,
-                j.nama_jenjang
-            FROM siswa s
-            LEFT JOIN kelas k ON k.id = s.id_kelas
-            LEFT JOIN jenjang j ON j.id = k.id_jenjang
-            WHERE s.id = ?
-              AND s.id_kelas = ?
-            LIMIT 1",
-            [$id_siswa, $id_kelas]
-        )->row_array();
-
+       $siswa = $this->db->query(
+    "SELECT
+        s.id,
+        s.nis,
+        s.nama_siswa,
+        ps.id_kelas,
+        k.nama_kelas,
+        j.nama_jenjang
+    FROM siswa s
+    INNER JOIN siswa_pengerjaan ps
+        ON ps.id_siswa = s.id
+    INNER JOIN kelas k
+        ON k.id = ps.id_kelas
+    LEFT JOIN jenjang j
+        ON j.id = k.id_jenjang
+    WHERE s.id = ?
+      AND ps.id_kelas = ?
+      AND ps.tahun_ajaran = ?
+    LIMIT 1",
+    [
+        $id_siswa,
+        $id_kelas,
+        $tahun_ajaran
+    ]
+)->row_array();
         if (empty($siswa)) {
             show_error(
                 'Data siswa tidak ditemukan atau tidak sesuai dengan kelas yang dipilih.',

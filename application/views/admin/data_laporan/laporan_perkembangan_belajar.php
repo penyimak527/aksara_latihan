@@ -75,7 +75,7 @@
             <img src="<?php echo base_url('assets/aksara_edited.png'); ?>" alt="Logo Aksara">
         </td>
         <td class="kop-title">
-            <div class="judul">LAPORAN PERKEMBANGAN BELAJAR </div>
+            <div class="judul">LAPORAN PERKEMBANGAN BELAJAR SISWA</div>
             <div class="periode">
                 Semester <?php echo htmlspecialchars($semester, ENT_QUOTES, 'UTF-8'); ?>
                 Tahun Ajaran <?php echo htmlspecialchars($tahun_ajaran, ENT_QUOTES, 'UTF-8'); ?>
@@ -224,16 +224,34 @@
                 <?php endforeach; ?>
 
                 <?php if (count($points) > 1): ?>
-                    <polyline points="<?php echo implode(' ', $points); ?>" fill="none" stroke="#000" stroke-width="1.4"></polyline>
+                    <polyline
+                        points="<?php echo implode(' ', $points); ?>"
+                        fill="none"
+                        stroke="#000"
+                        stroke-width="1.4"
+                    ></polyline>
                 <?php else: ?>
                     <?php
                         $item = $grafik_bulan[0];
                         $nilai = max(0, min(100, (float) ($item['nilai'] ?? 0)));
                         $y = $top + $plot_height - (($nilai / 100) * $plot_height);
-                        $x_awal = $left + 18;
-                        $x_akhir = ($width - $right) - 18;
+
+                        /*
+                         * Garis satu titik dibuat dinamis mengikuti lebar area chart.
+                         * Padding menjaga garis agar tidak menyentuh sumbu dan batas kanan.
+                         */
+                        $padding_garis = max(28, round($plot_width * 0.05));
+                        $x_awal = $left + $padding_garis;
+                        $x_akhir = ($width - $right) - $padding_garis;
                     ?>
-                    <line x1="<?php echo round($x_awal, 2); ?>" y1="<?php echo round($y, 2); ?>" x2="<?php echo round($x_akhir, 2); ?>" y2="<?php echo round($y, 2); ?>" stroke="#000" stroke-width="1.4"></line>
+                    <line
+                        x1="<?php echo round($x_awal, 2); ?>"
+                        y1="<?php echo round($y, 2); ?>"
+                        x2="<?php echo round($x_akhir, 2); ?>"
+                        y2="<?php echo round($y, 2); ?>"
+                        stroke="#000"
+                        stroke-width="1.4"
+                    ></line>
                 <?php endif; ?>
 
                 <?php foreach ($grafik_bulan as $index => $item): ?>
@@ -264,7 +282,7 @@
 </table>
 
 <script>
-	window.print();
+        window.print();
 </script>
 </body>
 </html>
