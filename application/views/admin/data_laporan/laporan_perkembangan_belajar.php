@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Perkembangan Belajar Siswa</title>
+    <title>Laporan Perkembangan Belajar</title>
     <style>
         @page { size: A4 portrait; margin: 18mm 15mm; }
         * { box-sizing: border-box; }
@@ -75,7 +75,7 @@
             <img src="<?php echo base_url('assets/aksara_edited.png'); ?>" alt="Logo Aksara">
         </td>
         <td class="kop-title">
-            <div class="judul">LAPORAN PERKEMBANGAN BELAJAR SISWA</div>
+            <div class="judul">LAPORAN PERKEMBANGAN BELAJAR </div>
             <div class="periode">
                 Semester <?php echo htmlspecialchars($semester, ENT_QUOTES, 'UTF-8'); ?>
                 Tahun Ajaran <?php echo htmlspecialchars($tahun_ajaran, ENT_QUOTES, 'UTF-8'); ?>

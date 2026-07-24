@@ -117,5 +117,58 @@ class Laporan extends CI_Controller
 			]));
 	}
 
+	public function kelas_riwayat_by_siswa()
+	{
+		$admin = $this->session->userdata('admin');
+
+		if (empty($admin) || empty($admin['username'])) {
+			$this->output
+				->set_status_header(401)
+				->set_content_type('application/json', 'utf-8')
+				->set_output(json_encode([
+					'result' => 'false',
+					'message' => 'Sesi admin tidak ditemukan.',
+					'data' => []
+				]));
+			return;
+		}
+
+		$id_siswa = (int) $this->input->post('id_siswa', true);
+		$tahun_ajaran = trim((string) $this->input->post('tahun_ajaran', true));
+
+		if ($id_siswa <= 0 || $tahun_ajaran === '') {
+			$this->output
+				->set_content_type('application/json', 'utf-8')
+				->set_output(json_encode([
+					'result' => 'false',
+					'message' => 'Siswa dan tahun ajaran wajib dipilih.',
+					'data' => []
+				]));
+			return;
+		}
+
+		$kelas = $this->db->query(
+			"SELECT DISTINCT
+				ps.id_kelas,
+				k.nama_kelas,
+				j.nama_jenjang
+			FROM siswa_pengerjaan ps
+			INNER JOIN kelas k ON k.id = ps.id_kelas
+			LEFT JOIN jenjang j ON j.id = k.id_jenjang
+			WHERE ps.id_siswa = ?
+			  AND ps.tahun_ajaran = ?
+			  AND ps.id_kelas IS NOT NULL
+			ORDER BY j.nama_jenjang ASC, k.nama_kelas ASC",
+			[$id_siswa, $tahun_ajaran]
+		)->result_array();
+
+		$this->output
+			->set_content_type('application/json', 'utf-8')
+			->set_output(json_encode([
+				'result' => 'true',
+				'data' => $kelas
+			]));
+	}
+
 }
 ?>

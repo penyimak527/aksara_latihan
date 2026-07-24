@@ -216,12 +216,10 @@
 					<div id="form-kelas-tahun-ajaran" class="row mb-2">
 						<div class="col-md-12">
 							<div class="form-group">
-								<label class="mb-1">Kelas</label>
-								<select name="id_kelas_perkembangan" id="id-kelas-perkembangan" class="form-control">
-									<option value="">Pilih Kelas</option>
-									<?php
-									foreach ($kelas as $j): ?>
-										?>
+								<label class="mb-1">Kelas Saat Ini</label>
+								<select name="id_kelas_sekarang" id="id-kelas-sekarang" class="form-control">
+									<option value="">Pilih Kelas Saat Ini</option>
+									<?php foreach ($kelas as $j): ?>
 										<option value="<?php echo $j['id']; ?>">
 											<?php echo $j['nama_kelas']; ?>
 										</option>
@@ -235,7 +233,17 @@
 							<div class="form-group">
 								<label class="mb-1">Nama Siswa</label>
 								<select name="id_siswa_perkembangan" id="id-siswa-perkembangan" class="form-control" disabled>
-									<option value="">Pilih kelas terlebih dahulu</option>
+									<option value="">Pilih kelas saat ini terlebih dahulu</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div id="form-kelas-riwayat-perkembangan" class="row mb-2" style="display: none;">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label class="mb-1">Kelas pada Riwayat Pengerjaan</label>
+								<select name="id_kelas_perkembangan" id="id-kelas-perkembangan" class="form-control" disabled>
+									<option value="">Pilih siswa terlebih dahulu</option>
 								</select>
 							</div>
 						</div>
@@ -475,15 +483,16 @@
 		});
 
 
-		$(document).on('change', '#id-kelas-perkembangan', function () {
+		$(document).on('change', '#id-kelas-sekarang', function () {
 			var idKelas = $(this).val();
 			var $siswa = $('#id-siswa-perkembangan');
+			var $kelasRiwayat = $('#id-kelas-perkembangan');
 
-			// Kosongkan pilihan lama setiap kali kelas berubah.
 			$siswa.prop('disabled', true).html('<option value="">Memuat data siswa...</option>');
+			$kelasRiwayat.prop('disabled', true).html('<option value="">Pilih siswa terlebih dahulu</option>');
 
 			if (!idKelas) {
-				$siswa.html('<option value="">Pilih kelas terlebih dahulu</option>');
+				$siswa.html('<option value="">Pilih kelas saat ini terlebih dahulu</option>');
 				return;
 			}
 
@@ -514,6 +523,62 @@
 						.prop('disabled', true);
 				}
 			});
+		});
+
+		function loadKelasRiwayatPerkembangan() {
+			var idSiswa = $('#id-siswa-perkembangan').val();
+			var tahunAjaran = $('select[name="single_filter_tahun_ajaran"]').val();
+			var $kelasRiwayat = $('#id-kelas-perkembangan');
+
+			$kelasRiwayat.prop('disabled', true).html('<option value="">Memuat kelas riwayat...</option>');
+
+			if (!idSiswa || !tahunAjaran) {
+				$kelasRiwayat.html('<option value="">Pilih siswa dan tahun ajaran terlebih dahulu</option>');
+				return;
+			}
+
+			$.ajax({
+				url: '<?= base_url('admin/laporan/kelas_riwayat_by_siswa'); ?>',
+				type: 'POST',
+				dataType: 'JSON',
+				data: {
+					id_siswa: idSiswa,
+					tahun_ajaran: tahunAjaran
+				},
+				success: function (response) {
+					var options = '<option value="">Pilih Kelas Riwayat</option>';
+					var daftarKelas = response.data || [];
+
+					if (response.result === 'true' && daftarKelas.length > 0) {
+						daftarKelas.forEach(function (item) {
+							var namaKelas = $.trim((item.nama_jenjang || '') + ' ' + (item.nama_kelas || ''));
+							options += '<option value="' + item.id_kelas + '">' +
+								$('<div>').text(namaKelas || '-').html() +
+							'</option>';
+						});
+						$kelasRiwayat.html(options).prop('disabled', false).val('');
+					} else {
+						$kelasRiwayat
+							.html('<option value="">Tidak ada riwayat pengerjaan pada tahun ajaran ini</option>')
+							.prop('disabled', true);
+					}
+				},
+				error: function () {
+					$kelasRiwayat
+						.html('<option value="">Kelas riwayat gagal dimuat</option>')
+						.prop('disabled', true);
+				}
+			});
+		}
+
+		$(document).on('change', '#id-siswa-perkembangan', function () {
+			loadKelasRiwayatPerkembangan();
+		});
+
+		$(document).on('change', 'select[name="single_filter_tahun_ajaran"]', function () {
+			if ($('#id-siswa-perkembangan').val()) {
+				loadKelasRiwayatPerkembangan();
+			}
 		});
 
 	})
@@ -584,6 +649,7 @@
 			$('#form-tahun-ajaran').hide();
 			$('#form-kelas-tahun-ajaran').hide();
 			$('#form-siswa-perkembangan').hide();
+			$('#form-kelas-riwayat-perkembangan').hide();
 			$('#form-mapel').hide();
 		} else if (nama == 'Laporan Beasiswa') {
 			$('#filter-data').hide();
@@ -599,6 +665,7 @@
 			$('#form-tahun-ajaran').hide();
 			$('#form-kelas-tahun-ajaran').hide();
 			$('#form-siswa-perkembangan').hide();
+			$('#form-kelas-riwayat-perkembangan').hide();
 			$('#form-mapel').hide();
 		} else if (nama == 'Laporan Administrasi') {
 			$('#filter-data').hide();
@@ -614,6 +681,7 @@
 			$('#form-tahun-ajaran').hide();
 			$('#form-kelas-tahun-ajaran').hide();
 			$('#form-siswa-perkembangan').hide();
+			$('#form-kelas-riwayat-perkembangan').hide();
 			$('#form-mapel').hide();
 		} else if (nama == 'Laporan Siswa') {
 			$('#filter-data').hide();
@@ -628,6 +696,7 @@
 			$('#form-tahun-ajaran').hide();
 			$('#form-kelas-tahun-ajaran').hide();
 			$('#form-siswa-perkembangan').hide();
+			$('#form-kelas-riwayat-perkembangan').hide();
 			$('#form-mapel').hide();
 		} else if (nama == 'Laporan Riwayat Kelas') {
 			$('#filter-data').hide();
@@ -642,6 +711,7 @@
 			$('#form-tahun-ajaran').hide();
 			$('#form-kelas-tahun-ajaran').hide();
 			$('#form-siswa-perkembangan').hide();
+			$('#form-kelas-riwayat-perkembangan').hide();
 			$('#form-mapel').hide();
 		} else if (nama == 'Laporan Aging Piutang') {
 			$('#filter-data').hide();
@@ -656,6 +726,7 @@
 			$('#form-tahun-ajaran').hide();
 			$('#form-kelas-tahun-ajaran').hide();
 			$('#form-siswa-perkembangan').hide();
+			$('#form-kelas-riwayat-perkembangan').hide();
 			$('#form-mapel').hide();
 		} else if (nama == 'Laporan Pertemuan Tentor') {
 			$('#filter-data').hide();
@@ -671,6 +742,7 @@
 			$('#form-tahun-ajaran').hide();
 			$('#form-kelas-tahun-ajaran').hide();
 			$('#form-siswa-perkembangan').hide();
+			$('#form-kelas-riwayat-perkembangan').hide();
 			$('#form-mapel').hide();
 		}else if (nama == 'Laporan Perkembangan Belajar') {
 			$('#filter-data').hide();
@@ -683,11 +755,13 @@
 			$('#form-tahun-ajaran').show();
 			$('#form-kelas-tahun-ajaran').show();
 			$('#form-siswa-perkembangan').show();
+			$('#form-kelas-riwayat-perkembangan').show();
 			$('#form-mapel').show();
 
 			// Reset filter agar siswa dari kelas sebelumnya tidak tetap terpilih.
-			$('#id-kelas-perkembangan').val('');
-			$('#id-siswa-perkembangan').prop('disabled', true).html('<option value="">Pilih kelas terlebih dahulu</option>');
+			$('#id-kelas-sekarang').val('');
+			$('#id-siswa-perkembangan').prop('disabled', true).html('<option value="">Pilih kelas saat ini terlebih dahulu</option>');
+			$('#id-kelas-perkembangan').prop('disabled', true).html('<option value="">Pilih siswa terlebih dahulu</option>');
 			$('#form-tahun').hide();
 			$('#btn_print_laporan_excel').hide();
 			$('#form-siswa').hide();

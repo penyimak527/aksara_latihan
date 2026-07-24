@@ -249,7 +249,7 @@ class Laporan_perkembangan_belajar extends CI_Controller
             ];
         }
 
-        $status_perkembangan = $this->status_perkembangan($grafik_bulan);
+        $status_perkembangan = $this->status_perkembangan($pengerjaan);
 
         $ringkasan = [
             'periode' => $tahun_ajaran,
@@ -292,22 +292,29 @@ class Laporan_perkembangan_belajar extends CI_Controller
         return 'Perlu Ditingkatkan';
     }
 
-    private function status_perkembangan($grafik_bulan)
-    {
-        if (count($grafik_bulan) < 2) {
-            return 'Belum cukup data';
-        }
-
-        $nilai_awal = (float) ($grafik_bulan[0]['nilai'] ?? 0);
-        $nilai_akhir = (float) ($grafik_bulan[count($grafik_bulan) - 1]['nilai'] ?? 0);
-        $selisih = $nilai_akhir - $nilai_awal;
-
-        if (abs($selisih) <= 2) {
-            return 'Stabil';
-        }
-
-        return $selisih > 0 ? 'Meningkat' : 'Menurun';
+    private function status_perkembangan($pengerjaan)
+{
+    if (empty($pengerjaan)) {
+        return 'Stabil';
     }
+
+    if (count($pengerjaan) === 1) {
+        return 'Stabil';
+    }
+
+    $nilai_awal = (float) ($pengerjaan[0]['nilai'] ?? 0);
+    $nilai_akhir = (float) (
+        $pengerjaan[count($pengerjaan) - 1]['nilai'] ?? 0
+    );
+
+    $selisih = $nilai_akhir - $nilai_awal;
+
+    if (abs($selisih) <= 2) {
+        return 'Stabil';
+    }
+
+    return $selisih > 0 ? 'Meningkat' : 'Menurun';
+}
 
     private function semester_laporan($grafik_bulan)
     {
